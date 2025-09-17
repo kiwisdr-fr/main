@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Analog Maker/tone gen</title>
+<style>
+  :root{--bg:#0b0e12;--panel:#0f1418;--muted:#9fb1c8;--accent:#2fa6ff;--warm:#ff9a3c}
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#e6f0fb;margin:0;padding:18px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{margin:0 0 8px;font-size:20px}
+  .panel{background:var(--panel);border:1px solid #101418;padding:12px;border-radius:10px;margin-bottom:12px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{background:#0d1114;border:1px solid #16181b;color:#e6f0fb;padding:8px 10px;border-radius:8px;cursor:pointer}
+  button.sel{border-color:var(--accent);box-shadow:0 6px 18px rgba(47,166,255,0.08)}
+  input, select{background:#0c1013;border:1px solid #1b2226;color:#e6f0fb;padding:6px;border-radius:6px}
+  .small{font-size:13px;color:var(--muted)}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .seq-list{margin-top:8px;padding:8px;background:#0b0e11;border-radius:8px;min-height:90px;border:1px solid #0f1418}
+  .ev{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;margin-bottom:6px;background:#071018}
+  .ev .meta{color:var(--muted);font-size:13px}
+  .footer{margin-top:10px;color:var(--muted);font-size:13px}
+  label{font-size:13px;color:var(--muted);margin-right:6px}
+  .col{display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Marker = Sequence Loop — On / Off / Shutoff (analog)</h1>
+
+    <div class="panel">
+      <div class="row controls">
+        <button id="startBtn">▶ Start</button>
+        <button id="stopBtn">⏹ Stop</button>
+
+        <div style="display:flex;gap:6px;align-items:center">
+          Stop mode:
+          <button id="modeOn" class="sel">On</button>
+          <button id="modeOff">Off</button>
+          <button id="modeShut">Shutoff</button>
+        </div>
+
+        <div style="display:flex;gap:6px;align-items:center">
+          <label class="small">Volume</label>
+          <input id="vol" type="range" min="0" max="1" step="0.001" value="0.28">
+        </div>
+
+        <div style="display:flex;gap:6px;align-items:center">
+          <label class="small">Instability (Hz)</label>
+          <input id="instab" type="range" min="0" max="15" step="0.1" value="3">
+        </div>
+
+        <div style="display:flex;gap:6px;align-items:center">
+          <label class="small">Drift rate (Hz)</label>
+          <input id="driftRate" type="range" min="0.05" max="1.2" step="0.01" value="0.18">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;gap:12px;align-items:center">
+        <label class="small">Shutoff duration (s)</label>
+        <input id="shutoffDur" type="number" value="2.0" step="0.1" style="width:90px">
+        <label class="small">Shutoff min freq (Hz)</label>
+        <input id="shutoffMin" type="number" value="40" step="1" style="width:90px">
+        <label class="small">Chorus</label>
+        <input id="chorusOn" type="checkbox" checked>
+        <label class="small">Noise bg</label>
+        <input id="noiseOn" type="checkbox" checked>
+      </div>
+
+      <div class="footer">Note: click 'Start' to allow audio. Events are scheduled with a short lookahead (analog style)</div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="small">Sequence (loop) — add events (tone / sweep)</div>
+        </div>
+        <div>
+          <button id="btnAddTone">+ Tone</button>
+          <button id="btnAddSweep">+ Sweep</button>
+          <button id="btnPreview">▶ Preview</button>
+        </div>
+      </div>
+
+      <div class="seq-list" id="seqList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="small">Export / Import (JSON)</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="btnExport">📤 Copy JSON</button>
+        <button id="btnImport">📥 Paste JSON</button>
+        <button id="btnReset">♻ Reset</button>
+      </div>
+    </div>
+</div>
+
+
+<script>
+/* ======= LOGIQUE AUDIO + SCHEDULER ======= */
+
+const LOOKAHEAD = 0.20;      // secondes planifiées en avance
+const SCHED_INTERVAL = 50;   // ms
+
+let ctx = null;
+let masterGain = null;
+let noiseNode = null, noiseGain = null;
+let chorusNodes = [];
+let schedulerTimer = null;
+let isPlaying = false;
+
+let sequences = {};     // stockage des sequences dans localStorage (obj: name->array)
+let activeSeqName = null;
+const LS_KEY = 'marker_seq_v2';
+
+// scheduling state
+let nextEventTime = 0;
+let seqIndex = 0;       // index dans la séquence active
+let activeNodes = [];   // liste des nodes actuellement actifs (pour shutoff)
+
+const seqListEl = document.getElementById('seqList');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const btnAddTone = document.getElementById('btnAddTone');
+const btnAddSweep = document.getElementById('btnAddSweep');
+const btnPreview = document.getElementById('btnPreview');
+
+const volEl = document.getElementById('vol');
+const instabEl = document.getElementById('instab');
+const driftRateEl = document.getElementById('driftRate');
+const shutoffDurEl = document.getElementById('shutoffDur');
+const shutoffMinEl = document.getElementById('shutoffMin');
+const chorusOnEl = document.getElementById('chorusOn');
+const noiseOnEl = document.getElementById('noiseOn');
+
+const modeOnBtn = document.getElementById('modeOn');
+const modeOffBtn = document.getElementById('modeOff');
+const modeShutBtn = document.getElementById('modeShut');
+
+let stopMode = 'on'; // 'on' | 'off' | 'shutoff'
+
+// UTIL: load/save
+function defaultSeqs(){
+  return {
+    "Default": [
+      { type:'tone', freq:880, durOn:0.25, durOff:0.12 },
+      { type:'tone', freq:660, durOn:0.2, durOff:0.1 },
+      { type:'sweep', freq1:900, freq2:400, durOn:0.9, durOff:0.2 }
+    ]
+  };
+}
+function loadSeqs(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ sequences = JSON.parse(raw); }
+    else sequences = defaultSeqs();
+  }catch(e){ sequences = defaultSeqs(); }
+  activeSeqName = Object.keys(sequences)[0];
+}
+function saveSeqs(){ localStorage.setItem(LS_KEY, JSON.stringify(sequences)); renderSeqList(); }
+
+// UI: render sequence list and events
+function renderSeqList(){
+  seqListEl.innerHTML = '';
+  Object.keys(sequences).forEach(name=>{
+    const box = document.createElement('div');
+    box.style.marginBottom = '8px';
+    box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong>${name}</strong> <span class="small" style="margin-left:8px">${sequences[name].length} events</span></div>
+      <div>
+        <button data-name="${name}" class="chooseBtn">Choisir</button>
+        <button data-name="${name}" class="delBtn">🗑</button>
+      </div>
+    </div>`;
+    // events
+    const evContainer = document.createElement('div');
+    sequences[name].forEach((ev, i)=>{
+      const evDiv = document.createElement('div');
+      evDiv.className = 'ev';
+      evDiv.innerHTML = `<div>
+        <div class="meta"><strong>${ev.type.toUpperCase()}</strong></div>
+        <div class="meta">${ev.type==='tone' ? `${ev.freq} Hz` : `${ev.freq1} → ${ev.freq2} Hz`}</div>
+        <div class="meta">on ${ev.durOn}s — off ${ev.durOff}s</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button data-idx="${i}" data-name="${name}" class="moveUp">⬆</button>
+        <button data-idx="${i}" data-name="${name}" class="moveDown">⬇</button>
+        <button data-idx="${i}" data-name="${name}" class="editEv">✏</button>
+        <button data-idx="${i}" data-name="${name}" class="delEv">🗑</button>
+      </div>`;
+      evContainer.appendChild(evDiv);
+    });
+    box.appendChild(evContainer);
+    seqListEl.appendChild(box);
+  });
+
+  // attach simple handlers
+  document.querySelectorAll('.chooseBtn').forEach(b=> b.onclick = (ev)=>{ activeSeqName = b.dataset.name; renderSeqList(); });
+  document.querySelectorAll('.delBtn').forEach(b=> b.onclick = (ev)=>{ if(confirm('Supprimer la séquence ?')){ delete sequences[b.dataset.name]; const keys = Object.keys(sequences); if(keys.length===0){ sequences = defaultSeqs(); } activeSeqName = Object.keys(sequences)[0]; saveSeqs(); }});
+  document.querySelectorAll('.delEv').forEach(b=> b.onclick = (ev)=>{ const idx = +b.dataset.idx; sequences[b.dataset.name].splice(idx,1); saveSeqs(); });
+  document.querySelectorAll('.moveUp').forEach(b=> b.onclick = (ev)=>{ const idx=+b.dataset.idx; const arr=sequences[b.dataset.name]; if(idx>0){ arr.splice(idx-1,0,arr.splice(idx,1)[0]); saveSeqs(); }});
+  document.querySelectorAll('.moveDown').forEach(b=> b.onclick = (ev)=>{ const idx=+b.dataset.idx; const arr=sequences[b.dataset.name]; if(idx<arr.length-1){ arr.splice(idx+1,0,arr.splice(idx,1)[0]); saveSeqs(); }});
+  document.querySelectorAll('.editEv').forEach(b=> b.onclick = (ev)=>{ const idx=+b.dataset.idx; editEvent(b.dataset.name, idx); });
+}
+
+// quick edit prompt for event
+function editEvent(name, idx){
+  const ev = sequences[name][idx];
+  if(!ev) return;
+  if(ev.type==='tone'){
+    const f = prompt('freq Hz', ev.freq);
+    const on = prompt('durOn (s)', ev.durOn);
+    const off = prompt('durOff (s)', ev.durOff);
+    if(f!==null) ev.freq = parseFloat(f);
+    if(on!==null) ev.durOn = parseFloat(on);
+    if(off!==null) ev.durOff = parseFloat(off);
+  } else {
+    const f1 = prompt('freq1 Hz', ev.freq1);
+    const f2 = prompt('freq2 Hz', ev.freq2);
+    const on = prompt('durOn (s)', ev.durOn);
+    const off = prompt('durOff (s)', ev.durOff);
+    if(f1!==null) ev.freq1 = parseFloat(f1);
+    if(f2!==null) ev.freq2 = parseFloat(f2);
+    if(on!==null) ev.durOn = parseFloat(on);
+    if(off!==null) ev.durOff = parseFloat(off);
+  }
+  saveSeqs();
+}
+
+// add events
+btnAddTone.onclick = ()=>{
+  if(!activeSeqName) activeSeqName = Object.keys(sequences)[0];
+  sequences[activeSeqName].push({type:'tone', freq:440, durOn:0.4, durOff:0.15});
+  saveSeqs();
+};
+btnAddSweep.onclick = ()=>{
+  if(!activeSeqName) activeSeqName = Object.keys(sequences)[0];
+  sequences[activeSeqName].push({type:'sweep', freq1:900, freq2:400, durOn:0.9, durOff:0.2});
+  saveSeqs();
+};
+
+// init load
+loadSeqs();
+renderSeqList();
+
+// AUDIO: init
+async function initAudio(){
+  if(ctx) return;
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = ctx.createGain();
+  masterGain.gain.value = parseFloat(volEl.value);
+  masterGain.connect(ctx.destination);
+
+  // noise background
+  if(noiseOnEl.checked){
+    const bufferSize = 2 * ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){
+      data[i] = (Math.random()*2-1 + Math.random()*2-1 + Math.random()*2-1)/6; // slightly pinkish random
+    }
+    noiseNode = ctx.createBufferSource();
+    noiseNode.buffer = buffer;
+    noiseNode.loop = true;
+    noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.03;
+    noiseNode.connect(noiseGain).connect(masterGain);
+    noiseNode.start();
+  }
+
+  // optional light chorus: create 2 delays modulated
+  if(chorusOnEl.checked){
+    createChorusChain();
+  }
+}
+
+// chorus helper: create a subtle stereo-ish chorus feeding master
+function createChorusChain(){
+  // a gentle chorus implemented with a modulated delay; for simplicity, we create two delays and LFOs
+  function mkChorus(rate, depth, delayTime){
+    const delay = ctx.createDelay(0.05);
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.value = rate;
+    lfoGain.gain.value = depth;
+    lfo.connect(lfoGain).connect(delay.delayTime);
+    delay.delayTime.value = delayTime;
+    lfo.start();
+    return {delay, lfo, lfoGain};
+  }
+  // connect masterGain -> split -> delays -> masterGain to add subtle wet
+  try{
+    const wetGain = ctx.createGain(); wetGain.gain.value = 0.12;
+    const splitter = ctx.createChannelSplitter(1);
+    const merger = ctx.createChannelMerger(1);
+    // input -> delay -> wetGain -> masterGain
+    // simpler: tap from masterGain input by creating a separate gain
+    const inputTap = ctx.createGain();
+    inputTap.gain.value = 1.0;
+    // reconnect masterGain.destination is ctx.destination; we will insert inputTap in series by connecting masterGain -> inputTap -> ctx.destination? Keep simple: connect an additional small delay chain from masterGain to destination
+    // Since we already connected masterGain to destination, create a small extra chain: masterGain -> delay -> wetGain -> destination
+    const ch = mkChorus(0.12, 0.004, 0.01);
+    masterGain.connect(ch.delay).connect(wetGain).connect(ctx.destination);
+    chorusNodes.push(ch);
+  }catch(e){}
+}
+
+// schedule helpers
+function computeLoopDuration(seq){
+  if(!seq || seq.length===0) return 0;
+  return seq.reduce((s,ev)=> s + (Number(ev.durOn)||0) + (Number(ev.durOff)||0), 0);
+}
+
+// schedule one tone event
+function scheduleTone(timeStart, ev){
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const g = ctx.createGain();
+  // timbre: saw + triangle
+  osc1.type = 'sawtooth';
+  osc2.type = 'triangle';
+  const baseFreq = ev.freq;
+  osc1.frequency.setValueAtTime(baseFreq * (1 + (Math.random()*0.004 - 0.002)), timeStart); // tiny random
+  osc2.frequency.setValueAtTime(baseFreq * (1 + (Math.random()*0.006 - 0.003)), timeStart);
+  // vibrato / instability LFO
+  const instabHz = parseFloat(instabEl.value);
+  const driftRate = parseFloat(driftRateEl.value);
+  let lfo1=null, lfoGain1=null, lfo2=null, lfoGain2=null;
+  if(instabHz > 0.001){
+    lfo1 = ctx.createOscillator(); lfoGain1 = ctx.createGain();
+    lfo1.type = 'sine'; lfo1.frequency.value = driftRate;
+    lfoGain1.gain.value = instabHz * 0.5; // +/- instab/2
+    lfo1.connect(lfoGain1);
+    lfoGain1.connect(osc1.frequency);
+    lfo1.start(timeStart);
+    // second lfo for osc2 with slightly different phase/rate
+    lfo2 = ctx.createOscillator(); lfoGain2 = ctx.createGain();
+    lfo2.type = 'sine'; lfo2.frequency.value = Math.max(0.02, driftRate * (1 + (Math.random()*0.15 - 0.075)));
+    lfoGain2.gain.value = instabHz * 0.6;
+    lfo2.connect(lfoGain2); lfoGain2.connect(osc2.frequency);
+    lfo2.start(timeStart);
+  }
+
+  // gain envelope
+  const a = 0.008, r = 0.08;
+  g.gain.setValueAtTime(0.0001, timeStart);
+  g.gain.exponentialRampToValueAtTime(0.9, timeStart + a);
+  g.gain.setValueAtTime(0.9, timeStart + ev.durOn - r);
+  g.gain.exponentialRampToValueAtTime(0.0001, timeStart + ev.durOn + 0.01);
+
+  // connect
+  osc1.connect(g); osc2.connect(g);
+  g.connect(masterGain);
+
+  // start/stop
+  osc1.start(timeStart);
+  osc2.start(timeStart);
+  const stopT = timeStart + ev.durOn + 0.02;
+  osc1.stop(stopT);
+  osc2.stop(stopT);
+
+  // cleanup scheduling: after stopped, disconnect LFOs
+  const cleanupDelay = (stopT - ctx.currentTime) * 1000 + 50;
+  const nodeEntry = {
+    type: 'tone',
+    oscillators: [osc1, osc2],
+    lfos: [lfo1, lfo2],
+    lfoGains: [lfoGain1, lfoGain2],
+    gainNode: g,
+    stopTime: stopT
+  };
+  activeNodes.push(nodeEntry);
+  setTimeout(()=> {
+    // stop and disconnect lfos if any (they were stopped by osc stop but LFOs need stop)
+    try{
+      if(lfo1){ lfo1.stop(); lfoGain1.disconnect(); }
+      if(lfo2){ lfo2.stop(); lfoGain2.disconnect(); }
+    }catch(e){}
+    // remove from activeNodes
+    const idx = activeNodes.indexOf(nodeEntry);
+    if(idx>=0) activeNodes.splice(idx,1);
+    // allow GC
+  }, cleanupDelay);
+}
+
+// schedule sweep (freq1 -> freq2)
+function scheduleSweep(timeStart, ev){
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = 'sawtooth';
+  const f1 = ev.freq1, f2 = ev.freq2;
+  const jitter = (Math.random()*0.01 - 0.005);
+  osc.frequency.setValueAtTime(f1 * (1 + jitter), timeStart);
+  osc.frequency.linearRampToValueAtTime(f2 * (1 + jitter), timeStart + ev.durOn);
+
+  // instability LFO
+  const instabHz = parseFloat(instabEl.value);
+  const driftRate = parseFloat(driftRateEl.value);
+  let lfo=null, lfoGain=null;
+  if(instabHz > 0.001){
+    lfo = ctx.createOscillator(); lfoGain = ctx.createGain();
+    lfo.type = 'sine'; lfo.frequency.value = Math.max(0.03, driftRate * (1 + (Math.random()*0.2-0.1)));
+    lfoGain.gain.value = instabHz * 0.5;
+    lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+    lfo.start(timeStart);
+  }
+
+  // envelope
+  const a=0.01, r=0.08;
+  g.gain.setValueAtTime(0.0001, timeStart);
+  g.gain.exponentialRampToValueAtTime(0.85, timeStart + a);
+  g.gain.setValueAtTime(0.85, timeStart + ev.durOn - r);
+  g.gain.exponentialRampToValueAtTime(0.0001, timeStart + ev.durOn + 0.01);
+
+  osc.connect(g); g.connect(masterGain);
+  osc.start(timeStart);
+  const stopT = timeStart + ev.durOn + 0.02;
+  osc.stop(stopT);
+
+  const nodeEntry = {
+    type:'sweep',
+    oscillators: [osc],
+    lfos: [lfo],
+    lfoGains: [lfoGain],
+    gainNode: g,
+    stopTime: stopT
+  };
+  activeNodes.push(nodeEntry);
+  const cleanupDelay = (stopT - ctx.currentTime) * 1000 + 50;
+  setTimeout(()=>{
+    try{ if(lfo){ lfo.stop(); lfoGain.disconnect(); } }catch(e){}
+    const idx = activeNodes.indexOf(nodeEntry); if(idx>=0) activeNodes.splice(idx,1);
+  }, cleanupDelay);
+}
+
+// scheduler loop: schedule events up to LOOKAHEAD
+function schedulerTick(){
+  if(!isPlaying || !ctx) return;
+  const now = ctx.currentTime;
+  const seq = sequences[activeSeqName] || [];
+  if(seq.length === 0) return;
+  // schedule while nextEventTime < now + LOOKAHEAD
+  while(nextEventTime < now + LOOKAHEAD){
+    const ev = seq[seqIndex % seq.length];
+    // clamp play if nextEventTime already past phase stop? We'll not complicate: user stop will clear scheduler.
+    if(ev.type === 'tone'){
+      scheduleTone(nextEventTime, ev);
+    } else {
+      scheduleSweep(nextEventTime, ev);
+    }
+    // advance
+    nextEventTime += Number(ev.durOn || 0) + Number(ev.durOff || 0);
+    seqIndex++;
+    // safety: if loop duration is 0, break
+    if(nextEventTime > now + 3600) break;
+  }
+}
+
+// start playing
+startBtn.onclick = async ()=>{
+  if(isPlaying) return;
+  await initAudio();
+  isPlaying = true;
+  // reset scheduling pointers
+  seqIndex = 0;
+  nextEventTime = ctx.currentTime + 0.06;
+  // set volume
+  masterGain.gain.value = parseFloat(volEl.value);
+  schedulerTimer = setInterval(schedulerTick, SCHED_INTERVAL);
+};
+
+// stop behavior depending on mode
+stopBtn.onclick = ()=>{
+  if(!isPlaying) return;
+  if(stopMode === 'off'){
+    // immediate stop: clear scheduler, quickly fade out all active nodes
+    clearInterval(schedulerTimer);
+    schedulerTimer = null;
+    // apply very short fade to each active node
+    const now = ctx.currentTime;
+    activeNodes.forEach(n=>{
+      try{
+        n.gainNode.gain.cancelScheduledValues(now);
+        n.gainNode.gain.setValueAtTime(n.gainNode.gain.value, now);
+        n.gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+        // stop oscillators shortly after
+        n.oscillators.forEach(o=> { try{o.stop(now + 0.05);}catch(e){} });
+        // stop lfos
+        (n.lfos||[]).forEach(l=>{ try{ l.stop(now + 0.02); }catch(e){} });
+      }catch(e){}
+    });
+    activeNodes = [];
+    isPlaying = false;
+  } else if(stopMode === 'shutoff'){
+    // stop scheduling new events, perform frequency descent + fade for currently active nodes
+    clearInterval(schedulerTimer);
+    schedulerTimer = null;
+    const now = ctx.currentTime;
+    const dur = Math.max(0.05, parseFloat(shutoffDurEl.value) || 1.0);
+    const freqMin = Math.max(10, parseFloat(shutoffMinEl.value) || 40);
+    // For each active node that is currently sounding (stopTime > now), ramp its oscillator(s) and fade gain
+    activeNodes.forEach(n=>{
+      if(n.stopTime && n.stopTime <= now + 0.02){
+        // if will stop almost now, leave it
+        return;
+      }
+      try{
+        // fade
+        n.gainNode.gain.cancelScheduledValues(now);
+        const currentGain = Math.max(0.0001, n.gainNode.gain.value || 0.8);
+        n.gainNode.gain.setValueAtTime(currentGain, now);
+        n.gainNode.gain.linearRampToValueAtTime(0.0001, now + dur);
+        // ramp frequencies to freqMin
+        (n.oscillators || []).forEach(o=>{
+          try{
+            o.frequency.cancelScheduledValues(now);
+            const curF = o.frequency.value || 440;
+            o.frequency.setValueAtTime(Math.max(10, o.frequency.value || 440), now);
+            o.frequency.linearRampToValueAtTime(freqMin, now + dur);
+            // stop oscillator at end
+            o.stop(now + dur + 0.05);
+          }catch(e){}
+        });
+        // stop lfos slightly earlier
+        (n.lfos || []).forEach(l=>{ try{ l.stop(now + dur + 0.02);}catch(e){} });
+      }catch(e){}
+    });
+    // after shutoff duration, clear activeNodes and mark stopped
+    setTimeout(()=>{ activeNodes = []; isPlaying = false; }, (dur + 0.12) * 1000);
+  } else { // stopMode === 'on' -> gentle fade
+    clearInterval(schedulerTimer); schedulerTimer = null;
+    const now = ctx.currentTime;
+    activeNodes.forEach(n=>{
+      try{
+        n.gainNode.gain.cancelScheduledValues(now);
+        const cur = Math.max(0.0001, n.gainNode.gain.value || 0.8);
+        n.gainNode.gain.setValueAtTime(cur, now);
+        n.gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+        n.oscillators.forEach(o=>{ try{ o.stop(now + 0.18); }catch(e){} });
+        (n.lfos||[]).forEach(l=>{ try{ l.stop(now + 0.17); }catch(e){} });
+      }catch(e){}
+    });
+    setTimeout(()=>{ activeNodes = []; isPlaying = false; }, 220);
+  }
+};
+
+// update volume live
+volEl.addEventListener('input', ()=> { if(masterGain) masterGain.gain.value = parseFloat(volEl.value); });
+
+// preview: play the sequence once immediately
+btnPreview.onclick = async ()=>{
+  await initAudio();
+  const seq = sequences[activeSeqName] || [];
+  if(seq.length === 0) return alert('Séquence vide');
+  const now = ctx.currentTime + 0.05;
+  let t = now;
+  seq.forEach(ev=>{
+    if(ev.type==='tone') scheduleTone(t, ev);
+    else scheduleSweep(t, ev);
+    t += (Number(ev.durOn) || 0) + (Number(ev.durOff) || 0);
+  });
+};
+
+// mode buttons logic
+function setMode(m){
+  stopMode = m;
+  [modeOnBtn, modeOffBtn, modeShutBtn].forEach(b=> b.classList.remove('sel'));
+  if(m==='on') modeOnBtn.classList.add('sel');
+  if(m==='off') modeOffBtn.classList.add('sel');
+  if(m==='shutoff') modeShutBtn.classList.add('sel');
+}
+modeOnBtn.onclick = ()=> setMode('on');
+modeOffBtn.onclick = ()=> setMode('off');
+modeShutBtn.onclick = ()=> setMode('shutoff');
+setMode('on'); // default
+
+// export/import/reset
+document.getElementById('btnExport').onclick = ()=>{
+  const payload = { sequences };
+  const txt = JSON.stringify(payload, null, 2);
+  navigator.clipboard && navigator.clipboard.writeText(txt).then(()=>alert('JSON copié'));
+};
+document.getElementById('btnImport').onclick = ()=>{
+  const txt = prompt('Colle le JSON des sequences (format {\"sequences\":{...}} ou {"sequences":...} ou simplement {"name":[...]})');
+  if(!txt) return;
+  try{
+    const obj = JSON.parse(txt);
+    if(obj.sequences) sequences = obj.sequences;
+    else sequences = obj;
+    activeSeqName = Object.keys(sequences)[0];
+    saveSeqs();
+    alert('Import OK');
+  }catch(e){ alert('JSON invalide'); }
+};
+document.getElementById('btnReset').onclick = ()=>{
+  if(confirm('Réinitialiser les sequences par défaut ?')){ sequences = defaultSeqs(); activeSeqName = Object.keys(sequences)[0]; saveSeqs(); }
+};
+
+// small UI: save when window unloads
+window.addEventListener('beforeunload', ()=> saveSeqs());
+
+// save changes automatically when checkbox toggles that affect audio chains
+chorusOnEl.addEventListener('change', ()=>{ if(ctx){ try{ chorusNodes.forEach(c=>{ c.lfo.stop(); try{ c.lfoGain.disconnect(); }catch(e){} }); chorusNodes = []; }catch(e){} }});
+noiseOnEl.addEventListener('change', ()=>{ if(ctx){ try{ if(noiseNode){ noiseNode.stop(); noiseNode.disconnect(); noiseNode = null; } if(noiseOnEl.checked){ // recreate
+  const bufferSize = 2 * ctx.sampleRate;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1 + Math.random()*2-1)/4;
+  noiseNode = ctx.createBufferSource(); noiseNode.buffer = buffer; noiseNode.loop = true;
+  noiseGain = ctx.createGain(); noiseGain.gain.value = 0.03; noiseNode.connect(noiseGain).connect(masterGain); noiseNode.start();
+ } }catch(e){} }});
+
+// initial save to ensure localStorage present
+saveSeqs();
+
+</script>
+</body>
+</html>
