@@ -1,60 +1,75 @@
+/* === GALAXY FUTURISTIC STYLE === */
+
 body {
-    background: linear-gradient(135deg, #23272a 0%, #2c3e50 100%);
-    color: #e0e0e0;
+    background: radial-gradient(circle at 20% 20%, #0b0f17 0%, #090d16 40%, #000000 100%);
+    color: #d4f1ff;
     font-family: 'Roboto Mono', 'Consolas', monospace;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
+    background-attachment: fixed;
 }
 
 header {
-    background: #1abc9c;
+    background: linear-gradient(135deg, #0ff 0%, #007bff 50%, #5b00ff 100%);
     color: #fff;
     padding: 1.5em 0;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.2);
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    box-shadow: 0 0 25px rgba(0, 153, 255, 0.6);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 h1, h2, h3 {
     font-family: 'Orbitron', 'Roboto Mono', monospace;
+    text-shadow: 0 0 12px #00ffff, 0 0 20px #0044ff;
+    color: #b3e6ff;
     margin-top: 0;
 }
 
 nav {
-    background: #34495e;
-    padding: 0.5em 0;
+    background: rgba(10, 15, 25, 0.9);
+    padding: 0.6em 0;
     text-align: center;
+    box-shadow: inset 0 -1px 0 rgba(0, 255, 255, 0.2);
 }
 
 nav a {
-    color: #1abc9c;
+    color: #00ffff;
     text-decoration: none;
     margin: 0 1em;
     font-weight: bold;
-    transition: color 0.2s;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 6px #00aaff;
 }
 
 nav a:hover {
-    color: #e67e22;
+    color: #ff66cc;
+    text-shadow: 0 0 10px #ff66cc, 0 0 20px #ff00ff;
 }
 
 .main-content {
     max-width: 900px;
-    margin: 2em auto;
-    background: rgba(44, 62, 80, 0.95);
-    border-radius: 8px;
-    box-shadow: 0 4px 24px rgba(44, 62, 80, 0.3);
-    padding: 2em;
+    margin: 3em auto;
+    background: rgba(10, 15, 25, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(0, 204, 255, 0.15), 0 0 80px rgba(255, 0, 255, 0.1);
+    padding: 2.5em;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 255, 255, 0.2);
 }
 
+/* === Futuristic Radio Dial === */
 .radio-dial {
     width: 100%;
-    height: 60px;
-    background: linear-gradient(90deg, #1abc9c 0%, #34495e 100%);
-    border-radius: 30px;
+    height: 70px;
+    background: linear-gradient(90deg, #00ffff 0%, #0044ff 50%, #5b00ff 100%);
+    border-radius: 35px;
     position: relative;
     margin: 2em 0;
-    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.2);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    overflow: hidden;
 }
 
 .radio-dial::before {
@@ -63,41 +78,52 @@ nav a:hover {
     left: 50%;
     top: 50%;
     width: 8px;
-    height: 40px;
-    background: #e67e22;
+    height: 50px;
+    background: #ff00cc;
     border-radius: 4px;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 8px #e67e22;
+    box-shadow: 0 0 15px #ff00cc, 0 0 30px #ff00ff;
+    animation: pulse 2s infinite ease-in-out;
 }
 
+@keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+}
+
+/* === Buttons === */
 .button {
-    background: #1abc9c;
+    background: linear-gradient(135deg, #0044ff, #00ffff);
     color: #fff;
     border: none;
-    border-radius: 4px;
-    padding: 0.7em 1.5em;
+    border-radius: 8px;
+    padding: 0.8em 1.8em;
     font-size: 1em;
     font-family: 'Roboto Mono', monospace;
     cursor: pointer;
-    transition: background 0.2s;
-    margin: 0.5em 0;
+    transition: all 0.3s ease;
+    margin: 0.7em 0;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
 }
 
 .button:hover {
-    background: #e67e22;
+    background: linear-gradient(135deg, #ff00cc, #6600ff);
+    box-shadow: 0 0 25px rgba(255, 0, 255, 0.7);
 }
 
+/* === Footer === */
 footer {
-    background: #23272a;
-    color: #888;
+    background: #0a0f19;
+    color: #7f8c8d;
     text-align: center;
-    padding: 1em 0;
+    padding: 1.5em 0;
     font-size: 0.9em;
     margin-top: 3em;
-    border-top: 1px solid #34495e;
+    border-top: 1px solid rgba(0, 255, 255, 0.2);
+    box-shadow: 0 -2px 15px rgba(0, 255, 255, 0.1);
 }
 
-/* Decorative radio waves */
+/* === Neon Radio Waves === */
 .radio-waves {
     position: relative;
     height: 40px;
@@ -108,21 +134,80 @@ footer {
     display: block;
     position: absolute;
     left: 50%;
-    width: 2px;
+    width: 3px;
     height: 40px;
-    background: #1abc9c;
-    opacity: 0.5;
-    border-radius: 1px;
-    animation: wave 2s infinite linear;
+    background: #00ffff;
+    border-radius: 2px;
+    opacity: 0.6;
+    box-shadow: 0 0 8px #00ffff, 0 0 16px #00aaff;
+    animation: wave 1.6s infinite ease-in-out;
 }
 
-.radio-waves span:nth-child(1) { transform: translateX(-40px); animation-delay: 0s; }
-.radio-waves span:nth-child(2) { transform: translateX(-20px); animation-delay: 0.4s; }
-.radio-waves span:nth-child(3) { transform: translateX(0); animation-delay: 0.8s; }
-.radio-waves span:nth-child(4) { transform: translateX(20px); animation-delay: 1.2s; }
-.radio-waves span:nth-child(5) { transform: translateX(40px); animation-delay: 1.6s; }
+.radio-waves span:nth-child(1) { transform: translateX(-60px); animation-delay: 0s; }
+.radio-waves span:nth-child(2) { transform: translateX(-30px); animation-delay: 0.2s; }
+.radio-waves span:nth-child(3) { transform: translateX(0); animation-delay: 0.4s; }
+.radio-waves span:nth-child(4) { transform: translateX(30px); animation-delay: 0.6s; }
+.radio-waves span:nth-child(5) { transform: translateX(60px); animation-delay: 0.8s; }
 
 @keyframes wave {
-    0%, 100% { height: 20px; opacity: 0.5; }
-    50% { height: 40px; opacity: 1; }
+    0%, 100% { height: 25px; opacity: 0.5; }
+    50% { height: 60px; opacity: 1; }
+}
+
+/* === Starfield background effect === */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://www.transparenttextures.com/patterns/stardust.png');
+    opacity: 0.15;
+    z-index: -1;
+    animation: starsMove 60s linear infinite;
+}
+
+@keyframes starsMove {
+    from { background-position: 0 0; }
+    to { background-position: 1000px 1000px; }
+}
+/* === HEADER LOGO FIX === */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    text-align: center;
+}
+
+.header-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.5em;
+}
+
+.header-logo img {
+    width: 150px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+    animation: logoGlow 3s infinite ease-in-out;
+}
+
+@keyframes logoGlow {
+    0%, 100% { box-shadow: 0 0 20px #00ffff, 0 0 40px #0044ff; }
+    50% { box-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00cc; }
+}
+
+.header-text h1 {
+    margin: 0;
+    font-size: 2.2em;
+    text-transform: uppercase;
+}
+
+.header-text p {
+    margin-top: 0.4em;
+    font-size: 1em;
+    color: #aeeaff;
+    opacity: 0.8;
 }

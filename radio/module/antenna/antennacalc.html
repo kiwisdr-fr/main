@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Antenna Calculators — dipole, loop, monopole, Yagi, magnetic loop</title>
+    <meta property="og:title" content="KiwiSDR.fr | Antenna Calculator" />
+    <meta property="og:description" content="KiwiSDR.fr - The WorldWide radio related tools website." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://kiwisdr.fr" />
+    <meta property="og:image" content="http://kiwisdr.fr/assets/img/og-image.png" />
+<style>
+  :root{
+    --maxw:1100px;
+    --accent:#0645AD;
+    --muted:#6b7280;
+    --card:#ffffff;
+    --bg:#f5f8fb;
+    --border:#e6e9ee;
+    --glass: rgba(255,255,255,0.6);
+  }
+  html,body{height:100%}
+  body{
+    font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg,var(--bg),#eef3fb);
+    margin:0;display:flex;align-items:flex-start;justify-content:center;padding:28px;color:#111;
+  }
+  .wrap{
+    width:100%;max-width:var(--maxw);background:var(--card);
+    border:1px solid var(--border);box-shadow:0 12px 36px rgba(16,30,60,0.06);
+    border-radius:12px;padding:20px 22px;
+  }
+  header{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+  .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#1e6fe0);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px}
+  h1{font-size:18px;margin:0}
+  p.lead{margin:6px 0 14px;color:var(--muted);font-size:14px}
+  .grid{display:grid;grid-template-columns:1fr 420px;gap:14px}
+  .left{min-width:0}
+  .card{background:linear-gradient(180deg,var(--glass),#fff);border:1px solid var(--border);padding:12px;border-radius:10px;margin-bottom:12px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input[type=number], select, input[type=text]{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;box-sizing:border-box;
+  }
+  .row{display:flex;gap:8px}
+  .row> *{flex:1}
+  button{
+    background:var(--accent);color:#fff;border:0;padding:10px 12px;border-radius:8px;font-weight:600;cursor:pointer;
+    box-shadow:0 8px 20px rgba(6,69,173,0.12);
+  }
+  .ghost{background:transparent;border:1px solid var(--border);color:#111}
+  .calc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .out{margin-top:10px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .out .item{padding:8px;border-radius:8px;background:#fff;border:1px solid var(--border)}
+  .muted{color:var(--muted);font-size:13px}
+  pre{background:#f9fafb;padding:10px;border-radius:8px;overflow:auto;font-size:13px}
+  .small{font-size:13px;color:var(--muted)}
+  @media (max-width:980px){ .grid{grid-template-columns:1fr} .logo{width:46px;height:46px} }
+</style>
+</head>
+<body>
+  <main class="wrap" role="main">
+    <header>
+      <div class="logo">ANT</div>
+      <div>
+        <h1>Antenna Calculators</h1>
+        <p class="lead">Calculate resonant lengths and basic parameters for common antennas: dipole, monopole, loop, folded dipole, Yagi, magnetic loop, inverted-V, 5/8λ, etc.</p>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="left">
+        <!-- Master controls -->
+        <div class="card">
+          <label for="freqMHz">Frequency (MHz)</label>
+          <div style="display:flex;gap:8px">
+            <input id="freqMHz" type="number" value="7.1" step="0.01" />
+            <select id="velFactor">
+              <option value="1">Free-space (vf=1.00)</option>
+              <option value="0.98">Conductor vf=0.98</option>
+              <option value="0.95">Insulated wire vf=0.95</option>
+              <option value="0.9">Coated/insulated vf=0.90</option>
+            </select>
+          </div>
+          <div class="small" style="margin-top:8px">Velocity factor applies to wire shortening due to insulation/nearby objects. Default is free-space.</div>
+        </div>
+
+        <!-- Half-wave dipole -->
+        <div class="card" id="dipoleCard">
+          <h3>Half-wave dipole (center-fed)</h3>
+          <div class="small">Standard half-wave dipole resonant length and element half-length.</div>
+
+          <div class="calc-grid" style="margin-top:10px">
+            <div>
+              <label for="dipoleVf">Velocity factor</label>
+              <select id="dipoleVfLocal">
+                <option value="1">1.00</option>
+                <option value="0.98">0.98</option>
+                <option value="0.95">0.95</option>
+              </select>
+            </div>
+            <div>
+              <label for="dipoleEndBend">End correction (%, optional)</label>
+              <input id="dipoleEndBend" type="number" value="0" step="0.1" />
+            </div>
+          </div>
+
+          <div class="out" id="dipoleOut"></div>
+          <div style="margin-top:10px" class="small">
+            Formula: λ = 300 / f(MHz). Half-wave length ≈ 0.5 λ. Apply velocity factor and small end correction if needed.
+          </div>
+        </div>
+
+        <!-- Quarter-wave monopole / ground plane -->
+        <div class="card" id="monopoleCard">
+          <h3>Quarter-wave monopole (vertical, ground plane)</h3>
+          <div class="small">Monopole length is ~ λ/4. For ground-plane use 4 radials ≈ 0.48λ as a starting point if slanted down.</div>
+          <div class="calc-grid" style="margin-top:10px">
+            <div>
+              <label for="monopoleVf">Velocity factor</label>
+              <select id="monopoleVf">
+                <option value="1">1.00</option>
+                <option value="0.98">0.98</option>
+                <option value="0.95">0.95</option>
+              </select>
+            </div>
+            <div>
+              <label for="numRadials">Radials (count)</label>
+              <input id="numRadials" type="number" value="4" min="0" />
+            </div>
+          </div>
+          <div class="out" id="monopoleOut"></div>
+        </div>
+
+        <!-- Folded dipole -->
+        <div class="card" id="foldedCard">
+          <h3>Folded dipole</h3>
+          <div class="small">Folded dipole is ≈ same length as half-wave dipole but has higher feedpoint impedance (~300 Ω for equal-conductor widths).</div>
+          <div style="margin-top:10px" class="out" id="foldedOut"></div>
+        </div>
+
+        <!-- Full-wave loop -->
+        <div class="card" id="loopCard">
+          <h3>Full-wave loop (single-turn wire loop)</h3>
+          <div class="small">Resonant when circumference ≈ λ (full-wave) — common shapes: square, circular. Provide circumference and side length for square loop.</div>
+          <div class="out" id="loopOut"></div>
+        </div>
+
+        <!-- Small magnetic loop -->
+        <div class="card" id="magLoopCard">
+          <h3>Small magnetic loop (hobbyist)</h3>
+          <div class="small">Magnetic loop: circumference ≈ 0.05–0.2 λ (tuned). This calculator gives circumference, diameter and a rough tuning capacitor range estimate (very approximate).</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div>
+              <label for="magLoopCircFrac">Circumference (fraction of λ)</label>
+              <input id="magLoopCircFrac" type="number" value="0.1" step="0.01" />
+            </div>
+            <div>
+              <label for="magLoopTurns">Turns / conductor width factor (1 = single turn)</label>
+              <input id="magLoopTurns" type="number" value="1" step="1" min="1" />
+            </div>
+          </div>
+          <div class="out" id="magLoopOut"></div>
+          <div class="small" style="margin-top:8px">Note: magnetic loops are sensitive and need a high-voltage tuning capacitor; real design needs precise L/C modelling.</div>
+        </div>
+
+        <!-- Inverted-V -->
+        <div class="card" id="invVCard">
+          <h3>Inverted-V (dipole variant)</h3>
+          <div class="small">Center height and leg angle affect vertical/horizontal polarization mix and feed impedance.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div>
+              <label for="invVAngle">Leg angle from horizontal (degrees)</label>
+              <input id="invVAngle" type="number" value="109" step="1" />
+            </div>
+            <div>
+              <label for="invVHeight">Center height (m)</label>
+              <input id="invVHeight" type="number" value="10" step="0.1" />
+            </div>
+          </div>
+          <div class="out" id="invVOut"></div>
+        </div>
+
+        <!-- 5/8 lambda vertical -->
+        <div class="card" id="fiveEightCard">
+          <h3>5/8λ vertical (mobile/ground)</h3>
+          <div class="small">5/8 wave vertical gives more low-angle radiation. Needs proper matching coil/transformer; length ≈ 0.625 λ.</div>
+          <div class="out" id="fiveEightOut"></div>
+        </div>
+
+        <!-- Yagi simple -->
+        <div class="card" id="yagiCard">
+          <h3>Simple 3-element Yagi-Uda (reflector + driven + director)</h3>
+          <div class="small">Gives approximate element lengths and spacings for a 3-element Yagi (HF/VHF typical rules of thumb).</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div>
+              <label for="yagiSpacingFrac">Spacing (fraction of λ)</label>
+              <input id="yagiSpacingFrac" type="number" value="0.18" step="0.01" />
+            </div>
+            <div>
+              <label for="yagiScale">Director shortening %</label>
+              <input id="yagiScale" type="number" value="5" step="0.1" />
+            </div>
+          </div>
+          <div class="out" id="yagiOut"></div>
+        </div>
+
+        <!-- EFHW / long-wire -->
+        <div class="card" id="efhwCard">
+          <h3>End-Fed Half-Wave (EFHW) & long-wire</h3>
+          <div class="small">Calculates resonant lengths for 1/2, 1λ, 3/2λ, etc. Useful for long-wire and multiband single-wire antennas.</div>
+          <div style="margin-top:8px" class="out" id="efhwOut"></div>
+        </div>
+
+      </div>
+
+      <!-- right column: formulas & run button -->
+      <aside>
+        <div class="card">
+          <h3>Run calculators</h3>
+          <div class="small">Change frequency and optional local settings per calculator, then click Calculate to update all sections.</div>
+          <div style="margin-top:10px">
+            <button id="calcAllBtn">Calculate All</button>
+            <button id="copyBtn" class="ghost" style="margin-left:8px">Copy summary (clipboard)</button>
+          </div>
+          <div style="margin-top:12px">
+            <h4 style="margin:6px 0">Formulas used</h4>
+            <pre>
+Wavelength (m) = 300 / f(MHz)           (since c ~ 300,000,000 m/s)
+Half-wave dipole ≈ 0.5 * λ * vf
+Quarter-wave monopole ≈ 0.25 * λ * vf
+Folded dipole length ≈ same as half-wave (but impedance ≈ 300Ω for equal conductors)
+Full-wave loop circumference ≈ 1.0 * λ * vf
+Small loop: circumference ≈ (fraction) * λ
+5/8λ vertical ≈ 0.625 * λ * vf
+Yagi: driven ≈ 0.5λ, reflector ≈ +~2-6%, director ≈ -~3-6%; spacing ~0.15-0.2λ
+            </pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Notes & safety</h3>
+          <ul class="small" style="margin:0;padding-left:18px">
+            <li>These are **approximate** mechanical dimensions — antenna electrical length depends on height, nearby objects, wire thickness and insulation.</li>
+            <li>Always test on a dummy load or with an antenna analyzer / SWR meter when transmitting.</li>
+            <li>For Yagi and broadband designs, use antenna modelling (EZNEC/4NEC2/MMANA) for best results.</li>
+            <li>Respect local regulations before transmitting.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Summary export</h3>
+          <div class="small" id="summaryText">Press "Calculate All" then "Copy summary".</div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+<script>
+/* Antenna calculators JS
+   All distances in meters (and feet) are computed. Use freq in MHz.
+   Step-by-step arithmetic to avoid mistakes.
+*/
+
+function mToFeet(m){ return m * 3.280839895; }
+function round3(x){ return Math.round(x*1000)/1000; }
+
+// Read global frequency and vf
+function getGlobals(){
+  const fMHz = Number(document.getElementById('freqMHz').value) || 0;
+  // global VF select (master) but some calculators use local overrides
+  const globalVf = Number(document.getElementById('velFactor').value) || 1;
+  // wavelength (meters)
+  const lambda = (fMHz > 0) ? (300 / fMHz) : NaN;
+  return { fMHz, globalVf, lambda };
+}
+
+// Helpers to write output blocks
+function writeOut(containerId, items){
+  const cont = document.getElementById(containerId);
+  cont.innerHTML = '';
+  for(const k of Object.keys(items)){
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `<div style="font-weight:700">${k}</div><div class="small">${items[k]}</div>`;
+    cont.appendChild(div);
+  }
+}
+
+// Calculate dipole
+function calcDipole(){
+  const g = getGlobals();
+  const vfLocal = Number(document.getElementById('dipoleVfLocal').value) || g.globalVf;
+  const endCorrPct = Number(document.getElementById('dipoleEndBend').value) || 0;
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('dipoleOut',{ 'Error':'Enter valid frequency' }); return; }
+
+  // full length half-wave dipole = 0.5 * lambda * vf * (1 - endCorr)
+  const halfWaveLength = 0.5 * lambda * vfLocal;
+  const endCorrFactor = (100 - endCorrPct) / 100;
+  const adjustedHalfWave = halfWaveLength * endCorrFactor;
+  const totalLength = adjustedHalfWave; // here we present total dipole length as half-wave (total end-to-end)
+  // convention: total dipole length = 0.5*lambda*vf (we show each leg too)
+  const legLength = adjustedHalfWave / 2;
+
+  // approximate resonant feedpoint impedance for thin wire center-fed dipole in free space ~ 72 ohm
+  const zApprox = '≈ 72 Ω (thin-wire free space, varies with height & thickness)';
+
+  writeOut('dipoleOut', {
+    'Frequency': round3(g.fMHz) + ' MHz',
+    'Wavelength (λ)': round3(lambda) + ' m',
+    'Dipole total length (end-to-end)': round3(totalLength) + ' m (' + round3(mToFeet(totalLength)) + ' ft)',
+    'Each leg (center → end)': round3(legLength) + ' m (' + round3(mToFeet(legLength)) + ' ft)',
+    'Feedpoint impedance (approx)': zApprox
+  });
+}
+
+// Monopole
+function calcMonopole(){
+  const g = getGlobals();
+  const vfLocal = Number(document.getElementById('monopoleVf').value) || g.globalVf;
+  const radials = Math.max(0, Math.floor(Number(document.getElementById('numRadials').value) || 0));
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('monopoleOut',{ 'Error':'Enter valid frequency' }); return; }
+
+  const monopoleLen = 0.25 * lambda * vfLocal;
+  // radials length recommendation: for 90° slant radials (down) -> ~0.48λ; for horizontal ground-plane, λ/4
+  const radialLen = (radials >= 4) ? (0.48 * lambda * vfLocal) : (0.25 * lambda * vfLocal);
+
+  let radText = (radials <= 0) ? 'No radials specified' : `${radials} radials suggested length ≈ ${round3(radialLen)} m`;
+
+  writeOut('monopoleOut',{
+    'Monopole length (approx)': round3(monopoleLen) + ' m (' + round3(mToFeet(monopoleLen)) + ' ft)',
+    'Radials': radText,
+    'Typical feedpoint impedance': (radials>=3) ? '≈ 36–50 Ω (depends on radial angle & count)' : '≈ 36–75 Ω (depends strongly on ground system)'
+  });
+}
+
+// Folded dipole
+function calcFolded(){
+  const g = getGlobals();
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('foldedOut',{ 'Error':'Enter valid frequency' }); return; }
+  const foldedLen = 0.5 * lambda * g.globalVf;
+  // impedance: ideal equal-conductor folded dipole ≈ 4 * Z_dipole ≈ 4*72 ≈ 288Ω; with different conductor widths change value
+  writeOut('foldedOut',{
+    'Total length (end-to-end)': round3(foldedLen) + ' m (' + round3(mToFeet(foldedLen)) + ' ft)',
+    'Each leg (if two-wire folded)': round3(foldedLen/2) + ' m',
+    'Approx feed impedance': '≈ 300 Ω (thin-wire folded dipole) — transform to 50Ω using 4:1 balun'
+  });
+}
+
+// Full-wave loop
+function calcLoop(){
+  const g = getGlobals();
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('loopOut',{ 'Error':'Enter valid frequency' }); return; }
+  const circ = 1.0 * lambda * g.globalVf;
+  // For square loop: side = circumference / 4
+  const side = circ / 4;
+  // approximate feedpoint impedance varies (≈ 100-120Ω for many full-wave loops)
+  writeOut('loopOut',{
+    'Circumference (resonant)': round3(circ) + ' m',
+    'Approx shape (square) side length': round3(side) + ' m',
+    'Approx feed impedance (center-fed loop)': '≈ 100–120 Ω (varies with shape & height)'
+  });
+}
+
+// Magnetic small loop
+function calcMagLoop(){
+  const g = getGlobals();
+  const circFrac = Number(document.getElementById('magLoopCircFrac').value) || 0.1;
+  const turns = Math.max(1, Math.floor(Number(document.getElementById('magLoopTurns').value) || 1));
+  const lambda = g.lambda;
+  if(!isFinite(lambda) || circFrac <= 0){ writeOut('magLoopOut',{ 'Error':'Enter valid frequency and fraction' }); return; }
+  const circumference = circFrac * lambda * g.globalVf;
+  const diameter = circumference / Math.PI;
+  // rough estimate of inductance L (single-turn circular loop) L ≈ (μ0 * r) * (ln(8r/a) - 2)  -> we skip detailed L calc; provide rough cap range: for resonance f = 1/(2π sqrt(L C)) -> C ~ 1/( (2πf)^2 * L)
+  // Give approximate tuning cap range for hobbyist loops (tens to hundreds of pF). Provide qualitative guidance.
+  const approxCapMin_pF = 5; // very approximate
+  const approxCapMax_pF = 2000; // large variable cap / vacuum cap
+  writeOut('magLoopOut',{
+    'Circumference': round3(circumference) + ' m (' + round3(mToFeet(circumference)) + ' ft)',
+    'Diameter (if circular)': round3(diameter) + ' m',
+    'Turns': turns,
+    'Approx tuning capacitor (very rough)': `${approxCapMin_pF} pF — ${approxCapMax_pF} pF (depends on loop inductance & Q)`
+  });
+}
+
+// Inverted-V
+function calcInvV(){
+  const g = getGlobals();
+  const angleDeg = Number(document.getElementById('invVAngle').value) || 109;
+  const centerH = Number(document.getElementById('invVHeight').value) || 10;
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('invVOut',{ 'Error':'Enter valid frequency' }); return; }
+  // use dipole leg length (each leg ~ lambda/4) but slanted: actual horizontal projection shorter
+  const totalDipole = 0.5 * lambda * g.globalVf;
+  const legLen = totalDipole / 2;
+  // vertical component of each leg = legLen * sin(angle/2) if angle is angle between legs? user input is angle from horizontal, we interpret as angle between leg and horizontal
+  const thetaRad = (angleDeg * Math.PI) / 180;
+  const verticalComp = legLen * Math.sin(thetaRad);
+  const horizComp = legLen * Math.cos(thetaRad);
+  writeOut('invVOut',{
+    'Each leg physical length (approx)': round3(legLen) + ' m',
+    'Vertical component of each leg': (verticalComp > 0 ? round3(verticalComp)+' m' : '—'),
+    'Horizontal projection (each side)': round3(horizComp) + ' m',
+    'Notes': 'Reduced feed impedance vs flat dipole as legs droop; measure with analyzer'
+  });
+}
+
+// 5/8 lambda
+function calcFiveEight(){
+  const g = getGlobals();
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('fiveEightOut',{ 'Error':'Enter valid frequency' }); return; }
+  const len = 0.625 * lambda * g.globalVf;
+  writeOut('fiveEightOut',{
+    '5/8λ length': round3(len) + ' m (' + round3(mToFeet(len)) + ' ft)',
+    'Typical notes': 'Requires matching network/coil; commonly used for low-angle radiation'
+  });
+}
+
+// Yagi simple 3-element
+function calcYagi(){
+  const g = getGlobals();
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('yagiOut',{ 'Error':'Enter valid frequency' }); return; }
+  const spacingFrac = Number(document.getElementById('yagiSpacingFrac').value) || 0.18;
+  const dirPct = Number(document.getElementById('yagiScale').value) || 5;
+
+  const driven = 0.5 * lambda * g.globalVf;
+  const reflector = driven * (1 + 0.03 + (0.02 * (5/5))); // approx +3~6%
+  const director = driven * (1 - (dirPct/100.0));
+  const spacing = spacingFrac * lambda;
+
+  writeOut('yagiOut',{
+    'Driven element length (≈)': round3(driven) + ' m',
+    'Reflector length (≈)': round3(reflector) + ' m',
+    'Director length (≈)': round3(director) + ' m',
+    'Element spacing (reflector→driven→director)': round3(spacing) + ' m (' + round3(mToFeet(spacing)) + ' ft)',
+    'Notes': 'These are rough starting values. Model in NEC for performance & impedance.'
+  });
+}
+
+// EFHW & long-wire
+function calcEFHW(){
+  const g = getGlobals();
+  const lambda = g.lambda;
+  if(!isFinite(lambda)){ writeOut('efhwOut',{ 'Error':'Enter valid frequency' }); return; }
+  const list = {};
+  const fracs = [
+    {label:'1/2λ (half-wave)', mult:0.5},
+    {label:'1λ (full-wave)', mult:1.0},
+    {label:'3/2λ', mult:1.5},
+    {label:'2λ', mult:2.0},
+    {label:'5/8λ', mult:0.625}
+  ];
+  fracs.forEach(f=>{
+    const L = f.mult * lambda * g.globalVf;
+    list[f.label] = round3(L) + ' m (' + round3(mToFeet(L)) + ' ft)';
+  });
+  writeOut('efhwOut', list);
+}
+
+// Run all calculators
+function calcAll(){
+  calcDipole();
+  calcMonopole();
+  calcFolded();
+  calcLoop();
+  calcMagLoop();
+  calcInvV();
+  calcFiveEight();
+  calcYagi();
+  calcEFHW();
+  updateSummary();
+}
+
+// Copy summary text to clipboard
+function updateSummary(){
+  const g = getGlobals();
+  const parts = [];
+  parts.push(`Antenna calculations for ${round3(g.fMHz)} MHz (λ=${round3(g.lambda)} m), vf=${g.globalVf}`);
+  // dipole
+  const d = document.getElementById('dipoleOut').innerText;
+  const m = document.getElementById('monopoleOut').innerText;
+  parts.push('--- Dipole ---');
+  parts.push(d);
+  parts.push('--- Monopole ---');
+  parts.push(m);
+  const summary = parts.join('\\n');
+  document.getElementById('summaryText').innerText = 'Summary ready — press Copy to copy to clipboard.';
+  // store for copy
+  window._antSummary = summary;
+}
+
+document.getElementById('calcAllBtn').addEventListener('click', function(){
+  calcAll();
+});
+
+document.getElementById('copyBtn').addEventListener('click', function(){
+  if(!window._antSummary){
+    updateSummary();
+  }
+  const text = window._antSummary || document.getElementById('summaryText').innerText;
+  navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text).then(()=>{
+    alert('Summary copied to clipboard.');
+  }).catch(()=>{
+    prompt('Copy this summary', text);
+  }) : prompt('Copy this summary', text);
+});
+
+// auto-run initially
+calcAll();
+
+</script>
+</body>
+</html>

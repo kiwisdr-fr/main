@@ -1,40 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>KiwiSDR.fr</title>
-    <meta name="og:title" content="KiwiSDR.fr">
-    <meta name="og:description" content="KiwiSDR.fr - under construction">
-    <meta name="og:type" content="website">
-    <meta name="og:url" content="http://kiwisdr.fr">
-    <meta name="og:image" content="http://kiwisdr.fr/assets/img/og-image.png">
-    <link rel="icon" type="image/icon" href="./assets/img/favicon.ico">
-    <link rel="stylesheet" href="./assets/css/main.css">
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="KiwiSDR.fr | Main Page" />
+    <meta property="og:description" content="KiwiSDR.fr - The WorldWide radio related tools website." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://kiwisdr.fr" />
+    <meta property="og:image" content="http://kiwisdr.fr/assets/img/og-image.png" />
+
+    <!-- Favicon & Styles -->
+    <link rel="icon" type="image/x-icon" href="./assets/img/favicon.ico" />
+    <link rel="stylesheet" href="./assets/css/main.css" />
 </head>
+
 <body>
+    <!-- Header -->
     <header>
-        <img src="./assets/img/og-image.png" alt="logo" style="position: absolute; left: 0; top: 0; width: 180px; height: 100px;">
-        <h1>KiwiSDR.fr</h1>
-        <p>The WorldWide radio related tools website.</p>
+        <div class="header-logo">
+            <img 
+                src="./assets/img/og-image.png" 
+                alt="KiwiSDR Logo" 
+                class="logo"
+            />
+        </div>
+
+        <div class="header-text">
+            <h1>KiwiSDR.fr</h1>
+            <p>The WorldWide radio related tools website.</p>
+        </div>
     </header>
-    <br>
-    <main>
+
+    <!-- Main Content -->
+    <main class="main-content">
         <section>
-            <h2>- Section list:</h2>
-            <ul>
-                <li><a href="http://map.kiwisdr.fr/">KiwiSDR.fr map</a> <br>
-                <p>Our Worldwide map is not only for KiwiSDR but also for OpenWebRX, Web888, Websdr and PhantomSDR, and maybe soon also AirSpy Network.</p>
-            </li>
-            <li><a href="./radio/module/analog-modulator/index.html">Analog marker/tone modulator</a> <br>
-            <p>Our analog modulator or generator of markers or tones call it like you want, is a technology that can make a very wide choice of tones or markers as you want, our clue with this is to make the perfect modulator with all the possiblities and make it realistic as possible.</p>
-        </li>
-        <li><a href="./radio/products/index.html">Our products</a></li>
-        <li><a href="https://websdr.kiwisdr.fr/">Our OpenWebRX+</a> <br>
-        Our brand new WebSDR running on OpenWebRX+ 1.2.93 is now avaible on the given link!</li>
+            <h2>Section list</h2>
+
+            <ul class="section-list">
+                <li>
+                    <a href="http://map.kiwisdr.fr/">KiwiSDR.fr Map</a>
+                    <p>
+                        Our Worldwide map is not only for KiwiSDR but also for
+                        OpenWebRX, Web888, WebSDR, and PhantomSDR — and maybe soon
+                        also the AirSpy Network.
+                    </p>
+                </li>
+
+                <li>
+                    <a href="./radio/module/analog-modulator/index.html">
+                        Analog marker/tone modulator
+                    </a>
+                    <p>
+                        Our analog modulator (or generator of tones and markers) is
+                        a flexible system capable of generating a wide range of
+                        signals. The goal is to create the most realistic and
+                        versatile modulator possible.
+                    </p>
+                </li>
+
+                <li>
+                    <a href="./radio/products/index.html">Our products</a>
+                    <p>
+                        Get here all our radio related products like plugins etc...
+                    </p>
+                </li>
+
+                <li>
+                    <a href="/radio/module/antenna/antennacalc.html">Antenna Converter/Calculator</a>
+                    <p>
+                        Calculate resonant lengths and basic parameters for common antennas: dipole, monopole, loop, folded dipole, Yagi, magnetic loop, inverted-V, 5/8λ, etc.
+                    </p>
+                </li>
+
+                <li>
+                    <a href="./radio/module/rf/dbmconverter.html">S Unit Converter</a>
+                    <p>
+                        Convert between dBm, dBW, mW, W, dBµV, dBV, dBm/Hz and estimate S-units. Includes power ↔ voltage (select resistance in Ω).
+                    </p>
+                </li>
+
+                <li>
+                    <a href="./radio/module/rf/hrfgaincalc.html">HackRF Driver / Gain calculator</a>
+                    <p>
+                        Quick calculator for estimating required driver/preamp gain between an SDR (e.g. HackRF) and a power amplifier (PA).
+                    </p>
+                </li>
+
+                <li>
+                    <a href="https://websdr.kiwisdr.fr/">Our OpenWebRX+</a>
+                    <p>
+                        Our brand new WebSDR running on OpenWebRX+ 1.2.93 is now
+                        available on the given link!
+                    </p>
+                </li>
             </ul>
         </section>
     </main>
-    <footer>Made by Discode Studio with all the love, This website is unrelated to KiwiSDR.com</footer>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            Made by <strong>Discode Studio</strong> with ❤️<br />
+            This website is <em>unrelated to KiwiSDR.com</em>
+        </p>
+    </footer>
 </body>
 </html>

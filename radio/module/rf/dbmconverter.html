@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RF Unit Converter — dBm, dBW, dBµV, mW, W, dBm/Hz, S-units</title>
+    <meta property="og:title" content="KiwiSDR.fr | RF Unit Converter" />
+    <meta property="og:description" content="KiwiSDR.fr - The WorldWide radio related tools website." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://kiwisdr.fr" />
+    <meta property="og:image" content="http://kiwisdr.fr/assets/img/og-image.png" />
+<style>
+  :root{
+    --maxw:900px;
+    --accent:#0645AD;
+    --muted:#6b7280;
+    --card:#ffffff;
+    --bg:#f7f9fc;
+    --border:#e6e9ee;
+    --glass: rgba(255,255,255,0.6);
+  }
+  html,body{height:100%}
+  body{
+    font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg,var(--bg),#eef3fb);
+    margin:0;display:flex;align-items:flex-start;justify-content:center;padding:36px;color:#111;
+  }
+  .wrap{
+    width:100%;max-width:var(--maxw);background:var(--card);
+    border:1px solid var(--border);box-shadow:0 12px 36px rgba(16,30,60,0.06);
+    border-radius:12px;padding:20px 22px;
+  }
+  header{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+  .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#1e6fe0);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px}
+  h1{font-size:18px;margin:0}
+  p.lead{margin:6px 0 16px;color:var(--muted);font-size:14px}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:14px}
+  .card{background:linear-gradient(180deg,var(--glass),#fff);border:1px solid var(--border);padding:12px;border-radius:10px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input[type=number], input[type=text], select{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;box-sizing:border-box;
+  }
+  .row{display:flex;gap:8px}
+  .row > *{flex:1}
+  button{
+    background:var(--accent);color:#fff;border:0;padding:10px 12px;border-radius:8px;font-weight:600;cursor:pointer;
+    box-shadow:0 8px 20px rgba(6,69,173,0.12);
+  }
+  .ghost{background:transparent;border:1px solid var(--border);color:#111}
+  .outputs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+  .out-item{padding:10px;border-radius:8px;background:#fff;border:1px solid var(--border);font-size:14px}
+  .muted{color:var(--muted);font-size:13px}
+  pre{background:#f9fafb;padding:10px;border-radius:8px;overflow:auto;font-size:13px}
+  .small{font-size:13px;color:var(--muted)}
+  .hint{margin-top:8px;font-size:13px;color:#234;text-align:left}
+  @media (max-width:920px){ .grid{grid-template-columns:1fr} .logo{width:46px;height:46px} .card{margin-top:8px} .outputs{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+  <main class="wrap" role="main">
+    <header>
+      <div class="logo">CV</div>
+      <div>
+        <h1>RF Unit Converter</h1>
+        <p class="lead">Convert between dBm, dBW, mW, W, dBµV, dBV, dBm/Hz and estimate S-units. Includes power ↔ voltage (select resistance in Ω).</p>
+      </div>
+    </header>
+
+    <section class="grid" aria-labelledby="converter">
+      <div>
+        <div class="card">
+          <label for="inputValue">Input value</label>
+          <div class="row">
+            <input id="inputValue" type="text" value="0" />
+            <select id="inputUnit" title="Input unit">
+              <option value="dBm">dBm</option>
+              <option value="dBW">dBW</option>
+              <option value="mW">mW</option>
+              <option value="W">W</option>
+              <option value="dBuV">dBµV (dBuV)</option>
+              <option value="dBV">dBV</option>
+              <option value="dBmPerHz">dBm/Hz</option>
+              <option value="dB">dB (ratio)</option>
+              <option value="Sunit">S-units (radio)</option>
+            </select>
+          </div>
+
+          <label style="margin-top:10px">Reference / context</label>
+          <div class="row" style="align-items:center">
+            <input id="resistance" type="number" step="any" value="50" />
+            <select id="resUnit" title="resistance unit">
+              <option value="ohm">Ω (ohm)</option>
+            </select>
+          </div>
+          <div class="small" style="margin-top:6px">Resistance is used to convert between power and voltage. Typical RF systems use 50 Ω.</div>
+
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button id="convertBtn">Convert</button>
+            <button id="clearBtn" class="ghost">Clear</button>
+          </div>
+
+          <div class="outputs" id="results" aria-live="polite" style="margin-top:12px">
+            <!-- results filled by JS -->
+          </div>
+
+          <div class="hint">Tip: for dB (ratio) conversion you may enter values like "20dB" or "0.1 (ratio)" in the input box — the tool will attempt to interpret the input.</div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin:0 0 8px 0">Quick examples</h3>
+          <ul class="small" style="margin:0;padding-left:18px">
+            <li><strong>dBm → mW:</strong> 0 dBm = 1 mW</li>
+            <li><strong>dBm → dBuV (50 Ω):</strong> use Vrms = sqrt(P*R), then dBµV = 20·log10(V / 1µV)</li>
+            <li><strong>dBm/Hz:</strong> convert by subtracting 10·log10(BW in Hz) from total-power dBm</li>
+            <li><strong>S-units (approx):</strong> S9 ≈ -73 dBm (HF); 1 S ≈ 6 dB. This is an approximation used in amateur radio.</li>
+          </ul>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Formulas & notes</h3>
+          <pre>
+Power from dBm:
+P[mW] = 10^(dBm/10)
+P[W] = P[mW]/1000
+
+dBm → dBW:
+dBW = dBm - 30
+
+Power ↔ Voltage (R ohm):
+P[W] = V_rms^2 / R
+V_rms = sqrt(P[W] * R)
+dBµV = 20*log10(V_rms / 1e-6)
+
+dBm/Hz (spectral density):
+dBm_per_Hz = dBm_total - 10*log10(BW_Hz)
+
+dB (ratio):
+power ratio: dB = 10*log10(P2/P1)
+voltage ratio: dB = 20*log10(V2/V1)
+
+S-units (approx, HF):
+S9 ≈ -73 dBm (reference)
+1 S-unit ≈ 6 dB
+Note: S-meter calibration varies between devices.
+          </pre>
+          <div class="small muted">All calculations assume RMS values for voltage. Use the resistance field to change the reference impedance.</div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin:0 0 8px 0">Examples / presets</h3>
+          <div class="small">
+            <button class="ghost" onclick="preset('-73','dBm')">S9 (-73 dBm)</button>
+            <button class="ghost" onclick="preset('0','dBm')">0 dBm</button>
+            <button class="ghost" onclick="preset('-100','dBm')">-100 dBm</button>
+            <button class="ghost" onclick="preset('1','mW')">1 mW</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+<script>
+function parseInput(str){
+  str = (''+str).trim();
+  if(str === '') return NaN;
+  const m = str.match(/([-+]?[0-9]*\.?[0-9]+(?:e[-+]?\d+)?)/i);
+  if(m) return Number(m[1]);
+  return NaN;
+}
+
+function toFixedSmart(v){
+  if(!isFinite(v)) return '—';
+  if(Math.abs(v) >= 1000 || Math.abs(v) < 0.001) return v.toExponential(4);
+  return Math.round(v*1000)/1000;
+}
+
+function showResults(outputs){
+  const container = document.getElementById('results');
+  container.innerHTML = '';
+  const order = [
+    ['dBm','dBm'],
+    ['dBW','dBW'],
+    ['mW','mW'],
+    ['W','W'],
+    ['Vrms','Vrms'],
+    ['dBuV','dBµV'],
+    ['dBV','dBV'],
+    ['dBmPerHz','dBm/Hz'],
+    ['Sunit','S-units (approx)'],
+    ['SunitLabel','S-unit (label)']
+  ];
+  for(const key of order){
+    const k = key[0];
+    const label = key[1];
+    const div = document.createElement('div');
+    div.className = 'out-item';
+    const value = outputs[k];
+    div.innerHTML = `<div style="font-weight:700">${label}</div><div class="small">${value === undefined ? '—' : value}</div>`;
+    container.appendChild(div);
+  }
+}
+
+function convert(){
+  const raw = document.getElementById('inputValue').value;
+  const unit = document.getElementById('inputUnit').value;
+  const R = Number(document.getElementById('resistance').value) || 50;
+
+  const out = {
+    dBm: NaN, dBW: NaN, mW: NaN, W: NaN, Vrms: NaN,
+    dBuV: NaN, dBV: NaN, dBmPerHz: NaN, Sunit: NaN, SunitLabel: '—'
+  };
+
+  const mW_from_dBm = dBm => Math.pow(10, dBm/10);
+  const dBm_from_mW = mW => 10 * Math.log10(Math.max(mW, 1e-300));
+  const W_from_mW = mW => mW/1000;
+  const Vrms_from_W = (P_W, R) => Math.sqrt(Math.max(P_W, 0) * R);
+  const dBuV_from_Vrms = V => 20 * Math.log10(Math.max(V,1e-300)/1e-6);
+  const dBV_from_Vrms = V => 20 * Math.log10(Math.max(V,1e-300)/1);
+
+  let val = parseInput(raw);
+  if(isNaN(val)){
+    alert('Input not recognized as a number.');
+    return;
+  }
+
+  if(unit === 'dBm'){
+    out.dBm = val;
+    out.mW = mW_from_dBm(val);
+    out.W = W_from_mW(out.mW);
+  } else if(unit === 'dBW'){
+    out.dBW = val;
+    out.dBm = val + 30;
+    out.mW = mW_from_dBm(out.dBm);
+    out.W = W_from_mW(out.mW);
+  } else if(unit === 'mW'){
+    out.mW = val;
+    out.dBm = dBm_from_mW(out.mW);
+    out.W = W_from_mW(out.mW);
+  } else if(unit === 'W'){
+    out.W = val;
+    out.mW = val * 1000;
+    out.dBm = dBm_from_mW(out.mW);
+  } else if(unit === 'dBuV'){
+    out.dBuV = val;
+    const V = 1e-6 * Math.pow(10, val/20);
+    out.Vrms = V;
+    const P_W = (V*V)/R;
+    out.W = P_W;
+    out.mW = P_W * 1000;
+    out.dBm = dBm_from_mW(out.mW);
+  } else if(unit === 'dBV'){
+    out.dBV = val;
+    const V = 1 * Math.pow(10, val/20);
+    out.Vrms = V;
+    const P_W = (V*V)/R;
+    out.W = P_W;
+    out.mW = P_W * 1000;
+    out.dBm = dBm_from_mW(out.mW);
+  } else if(unit === 'Sunit'){
+    out.Sunit = val;
+    const dBm_approx = -73 + (val - 9) * 6;
+    out.dBm = dBm_approx;
+    out.mW = mW_from_dBm(out.dBm);
+    out.W = W_from_mW(out.mW);
+  }
+
+  // complete conversions
+  if(isFinite(out.dBm)){
+    out.dBW = out.dBm - 30;
+    if(!isFinite(out.mW)) out.mW = mW_from_dBm(out.dBm);
+    if(!isFinite(out.W)) out.W = W_from_mW(out.mW);
+    const P_W = out.W;
+    if(isFinite(P_W)){
+      const V = Vrms_from_W(P_W, R);
+      out.Vrms = V;
+      out.dBuV = dBuV_from_Vrms(V);
+      out.dBV = dBV_from_Vrms(V);
+    }
+  }
+
+  // derive S-unit approximate number if missing
+  if(!isFinite(out.Sunit) && isFinite(out.dBm))
+    out.Sunit = 9 + (out.dBm + 73)/6;
+
+  // derive label (S1..S9+)
+  if(isFinite(out.dBm)){
+    const dBm = out.dBm;
+    let label = '';
+    if(dBm < -121) label = 'Below S1';
+    else if(dBm >= -121 && dBm < -73){
+      const sNum = Math.round((dBm + 121)/6) + 1;
+      label = 'S' + sNum;
+    } else {
+      const over = Math.round(dBm + 73);
+      const plus = Math.floor(over/10)*10;
+      label = 'S9+' + plus;
+    }
+    out.SunitLabel = label;
+  }
+
+  const fmt = v => (v === undefined || v === null || !isFinite(v)) ? '—' : (typeof v === 'number' ? toFixedSmart(v) : v);
+  const display = {
+    dBm: fmt(out.dBm)+' dBm',
+    dBW: fmt(out.dBW)+' dBW',
+    mW: fmt(out.mW)+' mW',
+    W: fmt(out.W)+' W',
+    Vrms: fmt(out.Vrms)+' V rms',
+    dBuV: fmt(out.dBuV)+' dBµV',
+    dBV: fmt(out.dBV)+' dBV',
+    dBmPerHz: fmt(out.dBm)+' dBm/Hz (1 Hz BW)',
+    Sunit: fmt(out.Sunit)+' (approx)',
+    SunitLabel: out.SunitLabel
+  };
+
+  showResults(display);
+}
+
+function preset(val, unit){
+  document.getElementById('inputValue').value = val;
+  document.getElementById('inputUnit').value = unit;
+  convert();
+}
+
+document.getElementById('convertBtn').addEventListener('click', convert);
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  document.getElementById('inputValue').value = '';
+  document.getElementById('inputUnit').value = 'dBm';
+  document.getElementById('resistance').value = 50;
+  document.getElementById('results').innerHTML = '';
+});
+document.getElementById('inputValue').addEventListener('keydown', e=>{
+  if(e.key==='Enter') convert();
+});
+
+convert();
+</script>
+</body>
+</html>
