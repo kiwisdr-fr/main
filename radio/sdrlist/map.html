@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDR Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<style>
+  #map {
+    height: 99vh;
+    width: 100%;
+  }
+  .leaflet-popup-content a {
+    color: #0645AD;
+    text-decoration: none;
+  }
+  .leaflet-popup-content a:hover {
+    text-decoration: underline;
+  }
+  .legend {
+    background: white;
+    padding: 10px;
+    line-height: 1.5em;
+    border-radius: 6px;
+    font-size: 14px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  }
+  .legend i {
+    width: 14px;
+    height: 14px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.8;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+// --- Initialisation de la carte ---
+const map = L.map('map').setView([20, 0], 2);
+
+// --- Couche OpenStreetMap ---
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// --- Couleurs selon le type ---
+const typeColors = {
+  "kiwisdr": "green",
+  "openwebrx": "blue",
+  "web888": "orange",
+  "websdr": "red"
+};
+
+// --- Chargement du fichier JSON externe ---
+fetch("./list.json")
+  .then(response => {
+    if (!response.ok) throw new Error("Erreur de chargement du JSON");
+    return response.json();
+  })
+  .then(sdrData => {
+    sdrData.forEach(sdr => {
+      if (!sdr.maplocation || !sdr.maplocation.lat || !sdr.maplocation.lon) return;
+
+      const color = typeColors[sdr.type] || "gray";
+      const marker = L.circleMarker([sdr.maplocation.lat, sdr.maplocation.lon], {
+        radius: 8,
+        fillColor: color,
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <b>${sdr.name}</b><br>
+        ${sdr.location}<br>
+        Type: <b>${sdr.type}</b><br>
+        <a href="${sdr.link}" target="_blank">🔗 Open SDR</a>
+      `);
+    });
+  })
+  .catch(err => {
+    console.error("Error :", err);
+  });
+
+// --- Ajout de la légende ---
+const legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = '<strong>Legend</strong><br>';
+
+  for (const [type, color] of Object.entries(typeColors)) {
+    div.innerHTML +=
+      `<i style="background:${color}"></i> ${type.toUpperCase()}<br>`;
+  }
+
+  return div;
+};
+
+legend.addTo(map);
+</script>
+
+</body>
+</html>

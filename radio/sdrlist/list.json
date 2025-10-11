@@ -1,0 +1,22 @@
+[
+    {
+        "name": "KiwiSDR | 0 - 30 MHz",
+        "type": "kiwisdr",
+        "location": "Warsaw, Poland",
+        "maplocation": {
+            "lat": 52.275807, 
+            "lon": 21.064120
+        },
+        "link": "https://buzzderkiwi.kiwisdr.fr/"
+    },
+    {
+        "name": "OpenWebRX+ | [UWU SDR]",
+        "type": "openwebrx",
+        "location": "Eugene, Oregon, USA",
+        "maplocation": {
+            "lat": 44.0,
+            "lon": -123.0
+        },
+        "link": "https://uwusdr.kiwisdr.fr/"
+    }
+]

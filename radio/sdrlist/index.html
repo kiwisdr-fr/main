@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>KiwiSDR.fr</title>
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="KiwiSDR.fr | Receiver List" />
+    <meta property="og:description" content="KiwiSDR.fr - The WorldWide radio related tools website." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://kiwisdr.fr" />
+    <meta property="og:image" content="http://kiwisdr.fr/assets/img/og-image.png" />
+
+    <!-- Favicon & Styles -->
+    <link rel="icon" type="image/x-icon" href="https://kiwisdr.fr/assets/img/favicon.ico" />
+    <link rel="stylesheet" href="https://kiwisdr.fr/assets/css/main.css" />
+
+    <style>
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .section-list {
+        background: rgba(10, 20, 40, 0.6);
+        border: 1px solid rgba(100, 200, 255, 0.2);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 0 10px rgba(0, 100, 255, 0.2);
+    }
+
+    .section-list a {
+        color: #64b5ff;
+        text-decoration: none;
+    }
+
+    .section-list a:hover {
+        text-decoration: underline;
+    }
+
+    /* ======= STYLE DES BOUTONS ======= */
+    header a button {
+        background: linear-gradient(135deg, #0a84ff, #0051c9);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.6rem 1.2rem;
+        margin: 0.3rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 0 10px rgba(0, 120, 255, 0.4);
+    }
+
+    header a button:hover {
+        background: linear-gradient(135deg, #1a9bff, #0062f0);
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(0, 150, 255, 0.7);
+    }
+
+    header a button:active {
+        transform: scale(0.98);
+        box-shadow: 0 0 5px rgba(0, 120, 255, 0.4);
+    }
+
+    header a button:focus {
+        outline: 2px solid rgba(0, 150, 255, 0.8);
+        outline-offset: 3px;
+    }
+
+    /* Pour une meilleure disposition si plusieurs boutons */
+    .header-text a {
+        display: inline-block;
+    }
+</style>
+
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-logo">
+            <img 
+                src="https://kiwisdr.fr/assets/img/og-image.png" 
+                alt="KiwiSDR Logo" 
+                class="logo"
+            />
+        </div>
+
+        <div class="header-text">
+            <h1>KiwiSDR.fr</h1>
+            <p>The WorldWide radio related tools website.</p>
+            <a href="map.html"><button>Access to the receiver map!</button></a><a href="https://docs.google.com/forms/d/e/1FAIpQLSc1xr3gKwHyfAEsJC7u8GZuSZ3jr42y97O1Cms3hSVFIfRSbg/viewform?usp=header"><button>Request your receiver</button></a><a href="https://docs.google.com/forms/d/e/1FAIpQLSeGmPkqnXO7UtCBtLJ_aKveyn7riOyTkfIgwBbH5aeIMcBKow/viewform?usp=header"><button>Request adding your receiver to kiwisdr.fr domain</button></a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h2>Receiver list</h2>
+        <div id="receiver-container">
+            <!-- Les sections seront générées ici -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            Made by <strong>Discode Studio</strong> with ❤️<br />
+            This website is <em>unrelated to KiwiSDR.com</em>
+        </p>
+    </footer>
+
+    <script>
+        // Chargement du JSON externe
+        fetch("./list.json")
+            .then(response => {
+                if (!response.ok) throw new Error("Erreur de chargement du fichier JSON");
+                return response.json();
+            })
+            .then(data => {
+                const container = document.getElementById("receiver-container");
+                container.innerHTML = ""; // On vide avant de remplir
+
+                data.forEach(sdr => {
+                    // Création d'une section
+                    const section = document.createElement("section");
+                    section.classList.add("section-list");
+
+                    // Contenu HTML
+                    section.innerHTML = `
+                        <h3>${sdr.name}</h3>
+                        <p>
+                            ${sdr.type.toUpperCase()} at 
+                            <a href="${sdr.link}" target="_blank">${sdr.link}</a> 
+                            - ${sdr.location}
+                        </p>
+                    `;
+
+                    container.appendChild(section);
+                });
+            })
+            .catch(err => {
+                console.error("Erreur :", err);
+                document.getElementById("receiver-container").innerHTML = 
+                    "<p>Impossible de charger la liste des récepteurs.</p>";
+            });
+    </script>
+</body>
+</html>
