@@ -1,5 +1,5 @@
 [
-    {
+        {
         "name": "KiwiSDR | 0 - 30 MHz",
         "type": "kiwisdr",
         "location": "Warsaw, Poland",
@@ -37,8 +37,7 @@
             "lat": 49.929183, 
             "lon": 2.9314184
         },
-        "link": "https://websdr.kiwisdr.fr/"
+        "link": "https://sdr.kiwisdr.fr/"
     }
 ]
-
 
