@@ -18,5 +18,26 @@
             "lon": -123.0
         },
         "link": "https://uwusdr.kiwisdr.fr/"
+    },
+    {
+        "name": "F5430SWL PhantomSDR",
+        "type": "websdr",
+        "location": "Péronne, Hauts-de-France, France",
+        "maplocation": {
+            "lat": 49.929596, 
+            "lon": 2.9299995
+        }
+        "link": "https://phantom.kiwisdr.fr/"
+    },
+    {
+        "name": "F5430SWL OpenWebRX+",
+        "type": "openwebrx",
+        "location": "Péronne, Hauts-de-France, France",
+        "maplocation": {
+            "lat": 49.929183, 
+            "lon": 2.9314184
+        }
+        "link": "https://websdr.kiwisdr.fr/"
     }
 ]
+
