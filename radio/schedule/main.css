@@ -1,0 +1,166 @@
+.radio-schedule {
+    background-color: #0b0b0b;
+    color: #ccc;
+    padding: 15px;
+    border-radius: 6px;
+    font-family: Consolas, monospace;
+}
+
+.utc-clock {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.utc-clock h3 {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin: 0;
+}
+
+#utc-time {
+    font-size: 1.3rem;
+    color: #eee;
+}
+
+.priom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.priom-table th {
+    background: #111;
+    color: #999;
+    text-align: left;
+    padding: 6px;
+    border-bottom: 1px solid #333;
+}
+
+.priom-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #222;
+}
+
+.priom-table tr:nth-child(even) {
+    background: #141414;
+}
+
+.stn {
+    color: #00ff6a; /* vert fluo pour station */
+}
+
+.priom-table td:nth-child(4) {
+    color: #ffc800; /* jaune pour mode */
+}
+
+.priom-table td:nth-child(5) {
+    color: #999;
+}
+/* Conteneur principal du schedule */
+.radio-schedule {
+    background-color: #0b0b0b;
+    color: #ccc;
+    font-family: Consolas, monospace;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px); /* hauteur adaptative (enlève header/footer) */
+}
+
+/* Horloge UTC */
+.utc-clock {
+    text-align: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.utc-clock h3 {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin: 0;
+}
+
+#utc-time {
+    font-size: 1.3rem;
+    color: #eee;
+}
+
+/* Zone scrollable du tableau */
+.priom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table-container {
+    flex: 1;
+    overflow-y: auto;
+    border-top: 1px solid #222;
+    border-bottom: 1px solid #222;
+}
+
+/* Style du tableau */
+.priom-table th {
+    background: #111;
+    color: #999;
+    text-align: left;
+    padding: 6px;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.priom-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #222;
+}
+
+.priom-table tr:nth-child(even) {
+    background: #141414;
+}
+
+.stn {
+    color: #00ff6a; /* vert fluo pour station */
+}
+
+.priom-table td:nth-child(5) {
+    color: #ffc800; /* jaune pour mode */
+}
+
+.priom-table td:nth-child(6) {
+    color: #999;
+}
+.next-schedule {
+    text-align: center;
+    margin: 10px 0 15px 0;
+    flex-shrink: 0;
+}
+
+.next-schedule h4 {
+    margin: 0 0 5px 0;
+    color: #aaa;
+    font-weight: normal;
+}
+
+.next-schedule ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #eee;
+    font-size: 0.9rem;
+}
+
+.next-schedule li {
+    margin: 2px 0;
+    color: #00b7ff;
+}
+
+.day-header {
+    margin-top: 15px;
+    margin-bottom: 4px;
+    color: #ffc800;
+    font-weight: bold;
+    border-bottom: 1px solid #222;
+}

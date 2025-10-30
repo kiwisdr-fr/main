@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calcul efficacité antenne whip</title>
+  <style>
+    body { font-family: monospace; background:#0d1117; color:#e6edf3; padding:20px; }
+    input { margin:5px; padding:5px; }
+    table { border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #444; padding: 5px; }
+    th { background: #222; }
+    tr:nth-child(even) { background: #1c1f26; }
+  </style>
+</head>
+<body>
+  <h2>📡 Calcul efficacité antenne whip</h2>
+  <label>Fréquence (MHz): <input type="number" id="freq" value="445" step="0.1"></label><br>
+  <label>Longueurs whip (m): <input type="text" id="lengths" value="0.2,0.5,1.0"></label><br>
+  <button onclick="calculer()">Calculer</button>
+
+  <table id="result">
+    <thead>
+      <tr>
+        <th>Longueur (m)</th>
+        <th>λ (m)</th>
+        <th>h/λ</th>
+        <th>Efficacité</th>
+        <th>Perte (dB)</th>
+        <th>λ/4 (m)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+function calculer() {
+  const freq = parseFloat(document.getElementById('freq').value);
+  const lengths = document.getElementById('lengths').value.split(',').map(v => parseFloat(v.trim()));
+  const tbody = document.querySelector('#result tbody');
+  tbody.innerHTML = '';
+
+  const lambda = 300.0 / freq;
+  const quarter = lambda / 4;
+
+  lengths.forEach(h => {
+    if (isNaN(h)) return;
+    const ratio = h / lambda;
+    const eff = ratio * ratio;
+    const loss = eff > 0 ? -10 * Math.log10(eff) : Infinity;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${h.toFixed(3)}</td>
+      <td>${lambda.toFixed(3)}</td>
+      <td>${ratio.toFixed(3)}</td>
+      <td>${eff.toFixed(4)}</td>
+      <td>${loss.toFixed(2)}</td>
+      <td>${quarter.toFixed(3)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>

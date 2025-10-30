@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>KiwiSDR.fr</title>
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="KiwiSDR.fr | Main Page" />
+    <meta property="og:description" content="KiwiSDR.fr - The WorldWide radio related tools website." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://kiwisdr.fr" />
+    <meta property="og:image" content="http://kiwisdr.fr/assets/img/og-image.png" />
+
+    <!-- Favicon & Styles -->
+    <link rel="icon" type="image/x-icon" href="http://kiwisdr.fr/assets/img/favicon.ico" />
+    <link rel="stylesheet" href="http://kiwisdr.fr/assets/css/main.css" />
+    <link rel="stylesheet" href="./main.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-logo">
+            <img 
+                src="http://kiwisdr.fr/assets/img/og-image.png" 
+                alt="KiwiSDR Logo" 
+                class="logo"
+            />
+        </div>
+
+        <div class="header-text">
+            <h1>KiwiSDR.fr</h1>
+            <p>The WorldWide radio related tools website.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section>
+            <div class="schedule"></div>
+        </section>
+    </main>
+
+    <script>
+async function loadSchedule() {
+    const scheduleContainer = document.querySelector('.schedule');
+    const dayNames = {
+        mon: "Monday",
+        tue: "Tuesday",
+        wed: "Wednesday",
+        thu: "Thursday",
+        fri: "Friday",
+        sat: "Saturday",
+        sun: "Sunday"
+    };
+
+    try {
+        const response = await fetch('./sc.json');
+        const data = await response.json();
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'radio-schedule';
+
+        // Horloge UTC
+        const clock = document.createElement('div');
+        clock.className = 'utc-clock';
+        clock.innerHTML = `
+            <h3>UTC TIME</h3>
+            <div id="utc-time">--:--:--</div>
+        `;
+        wrapper.appendChild(clock);
+
+        // Section Next Schedules
+        const nextSection = document.createElement('div');
+        nextSection.className = 'next-schedule';
+        nextSection.innerHTML = `
+            <h4>NEXT STATIONS</h4>
+            <ul id="next-list"><li>Loading...</li></ul>
+        `;
+        wrapper.appendChild(nextSection);
+
+        // Conteneur principal
+        const tableContainer = document.createElement('div');
+        tableContainer.className = 'table-container';
+
+        // Regroupement par jour
+        const daysMap = {};
+        data.forEach(entry => {
+            const days = entry.day.split(',');
+            days.forEach(day => {
+                if (!daysMap[day]) daysMap[day] = [];
+                daysMap[day].push(entry);
+            });
+        });
+
+        // Génération du contenu
+        Object.keys(dayNames).forEach(dayKey => {
+            const dayEntries = daysMap[dayKey];
+            if (!dayEntries) return;
+
+            const allEntries = [];
+
+            // Expansion de chaque horaire pour tri global
+            dayEntries.forEach(entry => {
+                const hours = entry.hour.split(',');
+                hours.forEach(hour => {
+                    allEntries.push({
+                        hour,
+                        name: entry.name,
+                        freq: entry.freq || '-',
+                        mode: entry.mode || '-',
+                        com: entry.com || '-'
+                    });
+                });
+            });
+
+            // Tri par heure
+            allEntries.sort((a, b) => {
+                const ah = parseInt(a.hour.slice(0, 2));
+                const am = parseInt(a.hour.slice(2) || '0');
+                const bh = parseInt(b.hour.slice(0, 2));
+                const bm = parseInt(b.hour.slice(2) || '0');
+                return (ah * 60 + am) - (bh * 60 + bm);
+            });
+
+            // Titre du jour
+            const dayHeader = document.createElement('h3');
+            dayHeader.className = 'day-header';
+            dayHeader.textContent = dayNames[dayKey];
+            tableContainer.appendChild(dayHeader);
+
+            // Tableau
+            const table = document.createElement('table');
+            table.className = 'priom-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>TIME</th>
+                        <th>STN.</th>
+                        <th>FREQ.</th>
+                        <th>MODE</th>
+                        <th>REMARKS</th>
+                    </tr>
+                </thead>
+            `;
+            const tbody = document.createElement('tbody');
+
+            allEntries.forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${entry.hour.slice(0, 2)}:${entry.hour.slice(2).padEnd(2, '0')}</td>
+                    <td class="stn">${entry.name}</td>
+                    <td>${entry.freq}</td>
+                    <td>${entry.mode}</td>
+                    <td>${entry.com}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+        });
+
+        wrapper.appendChild(tableContainer);
+        scheduleContainer.innerHTML = '';
+        scheduleContainer.appendChild(wrapper);
+
+        // --- Horloge UTC ---
+        function updateClock() {
+            const now = new Date();
+            const utc = now.toUTCString().split(' ')[4];
+            document.getElementById('utc-time').textContent = utc;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Section "Next Schedules" ---
+        function updateNextSchedules() {
+            const now = new Date();
+            const utcHours = now.getUTCHours();
+            const utcMinutes = now.getUTCMinutes();
+            const nowMinutes = utcHours * 60 + utcMinutes;
+
+            const nextList = document.getElementById('next-list');
+            nextList.innerHTML = '';
+
+            let upcoming = [];
+
+            data.forEach(entry => {
+                const times = entry.hour.split(',');
+                let next = null;
+                for (let t of times) {
+                    const h = parseInt(t.slice(0, 2));
+                    const m = parseInt(t.slice(2) || '0');
+                    const total = h * 60 + m;
+                    if (total > nowMinutes) {
+                        next = total;
+                        break;
+                    }
+                }
+                if (next !== null) {
+                    const nextH = String(Math.floor(next / 60)).padStart(2, '0');
+                    const nextM = String(next % 60).padStart(2, '0');
+                    upcoming.push({
+                        name: entry.name,
+                        time: `${nextH}:${nextM}`,
+                        freq: entry.freq || '?',
+                        mode: entry.mode || '?'
+                    });
+                }
+            });
+
+            upcoming.sort((a, b) => a.time.localeCompare(b.time));
+
+            if (upcoming.length === 0) {
+                nextList.innerHTML = '<li>No upcoming transmissions.</li>';
+            } else {
+                upcoming.slice(0, 5).forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${item.name}</strong> ${item.time} UTC (${item.freq} ${item.mode})`;
+                    nextList.appendChild(li);
+                });
+            }
+        }
+
+        updateNextSchedules();
+        setInterval(updateNextSchedules, 60000);
+
+    } catch (err) {
+        scheduleContainer.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadSchedule);
+</script>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            Made by <strong>Discode Studio</strong> with ❤️<br />
+            This website is <em>unrelated to KiwiSDR.com</em>
+        </p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,146 @@
+[
+    {
+        "name": "FGKT",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0100,0300,0500,0700,0900,1100,1300,1500,1700,1900,2100,2300",
+        "com": "Musics",
+        "freq": "6970 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "FGKT",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1745",
+        "com": "Check message",
+        "freq": "6970 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip day (Nov - Dec - Jan - Feb)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0530",
+        "com": "Frequency Switch to day freq for the pip",
+        "freq": "5448 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip day (Mar - Apr)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0430",
+        "com": "Frequency Switch to day freq for the pip",
+        "freq": "5448 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip day (May - Jun - Jul - Aug)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0300",
+        "com": "Frequency Switch to day freq for the pip",
+        "freq": "5448 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip day (Sep - Oct)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0430",
+        "com": "Frequency Switch to day freq for the pip",
+        "freq": "5448 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip night (Nov - Dec - Jan - Feb)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1400",
+        "com": "Frequency Switch to night freq for the pip",
+        "freq": "3756 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip night (Mar - Apr)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1600",
+        "com": "Frequency Switch to night freq for the pip",
+        "freq": "3756 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip night (May - Jun - Jul - Aug)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1730",
+        "com": "Frequency Switch to night freq for the pip",
+        "freq": "3756 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The pip night (Sep - Oct)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1530",
+        "com": "Frequency Switch to night freq for the pip",
+        "freq": "3756 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel day (Nov - Dec - Jan - Feb)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0600",
+        "com": "Frequency Switch to day freq for tsw",
+        "freq": "5367 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel day (Mar - Apr)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0500",
+        "com": "Frequency Switch to day freq for tsw",
+        "freq": "5367 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel day (May - Jun - Jul - Aug)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0430",
+        "com": "Frequency Switch to day freq for tsw",
+        "freq": "5367 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel day (Sep - Oct)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "0500",
+        "com": "Frequency Switch to day freq for tsw",
+        "freq": "5367 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel night (Nov - Dec - Jan - Feb)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1410",
+        "com": "Frequency Switch to night freq tsw",
+        "freq": "3363.5 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel night (Mar - Apr)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1545",
+        "com": "Frequency Switch to night freq for tsw",
+        "freq": "3363.5 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel night (May - Jun - Jul - Aug)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1830",
+        "com": "Frequency Switch to night freq for tsw",
+        "freq": "3363.5 kHz",
+        "mode": "USB"
+    },
+    {
+        "name": "The Squeaky Wheel night (Sep - Oct)",
+        "day": "mon,tue,wed,thu,fri,sat,sun",
+        "hour": "1500",
+        "com": "Frequency Switch to night freq for tsw",
+        "freq": "3363.5 kHz",
+        "mode": "USB"
+    }
+]
