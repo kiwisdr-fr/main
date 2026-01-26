@@ -1,0 +1,180 @@
+/* ===== STYLES AVANCÉS POUR LES MODULES RADIO ===== */
+/* Application des effets 3D modernes aux modules */
+
+:root {
+    --bg-dark: #0a0e27;
+    --bg-darker: #1a0a2e;
+    --panel-bg: rgba(20, 30, 60, 0.7);
+    --accent-cyan: #00ffcc;
+    --accent-purple: #6600ff;
+    --accent-pink: #ff33dd;
+    --text-main: #e0f7ff;
+    --text-muted: #7fb3d5;
+}
+
+body {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 25%, #16213e 50%, #0f3460 75%, var(--bg-dark) 100%);
+    background-attachment: fixed;
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Amélioration des inputs */
+input[type="range"],
+input[type="number"],
+input[type="text"],
+select {
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.1) 0%, rgba(100, 50, 200, 0.05) 100%);
+    border: 2px solid rgba(0, 255, 200, 0.2);
+    border-radius: 8px;
+    color: var(--text-main);
+    padding: 0.7em 0.8em;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+input[type="range"]:focus,
+input[type="number"]:focus,
+input[type="text"]:focus,
+select:focus {
+    border-color: rgba(0, 255, 200, 0.5);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2),
+                inset 0 0 10px rgba(0, 255, 200, 0.1);
+    outline: none;
+}
+
+/* Amélioration des boutons */
+button {
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.15) 0%, rgba(100, 50, 200, 0.1) 100%);
+    border: 2px solid rgba(0, 255, 200, 0.2);
+    border-radius: 8px;
+    color: var(--text-main);
+    padding: 0.7em 1.2em;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 150, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+button:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.2) 0%, rgba(255, 51, 221, 0.1) 100%);
+    border-color: rgba(0, 255, 200, 0.5);
+    box-shadow: 0 8px 25px rgba(0, 200, 255, 0.3),
+                0 0 20px rgba(100, 50, 200, 0.2);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 150, 255, 0.2);
+}
+
+button.sel {
+    background: linear-gradient(135deg, #00ffcc 0%, #00ddff 100%);
+    border-color: #00ffcc;
+    color: #0a0e27;
+    box-shadow: 0 8px 25px rgba(0, 255, 204, 0.4),
+                0 0 20px rgba(0, 255, 204, 0.3);
+    text-shadow: none;
+    font-weight: 700;
+}
+
+button.sel:hover {
+    box-shadow: 0 12px 35px rgba(0, 255, 204, 0.5),
+                0 0 30px rgba(0, 255, 204, 0.4);
+}
+
+/* Amélioration des panneaux */
+.panel {
+    background: var(--panel-bg);
+    border: 2px solid rgba(0, 255, 200, 0.2);
+    border-radius: 15px;
+    padding: 1.5em;
+    margin-bottom: 1.5em;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0, 150, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.panel:hover {
+    border-color: rgba(0, 255, 200, 0.3);
+    box-shadow: 0 12px 40px rgba(0, 150, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Amélioration des titres */
+h1, h2, h3 {
+    color: var(--accent-cyan);
+    text-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    margin-top: 0;
+}
+
+h1 {
+    font-size: 2em;
+    letter-spacing: 1px;
+}
+
+/* Amélioration des labels */
+label {
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Navigation wrapper */
+.module-nav {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 2em;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.module-nav a {
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.15) 0%, rgba(100, 50, 200, 0.1) 100%);
+    border: 2px solid rgba(0, 255, 200, 0.2);
+    color: var(--accent-cyan);
+    padding: 0.7em 1.5em;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.module-nav a:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.2) 0%, rgba(255, 51, 221, 0.1) 100%);
+    border-color: rgba(0, 255, 200, 0.5);
+    box-shadow: 0 8px 25px rgba(0, 200, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+    button {
+        padding: 0.6em 1em;
+        font-size: 0.9em;
+    }
+
+    .panel {
+        padding: 1em;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+}

@@ -1,21 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>KiwiSDR.fr - Products</title>
+    <title>KiwiSDR.fr - Nos Produits</title>
 
     <!-- Open Graph Metadata -->
-    <meta property="og:title" content="KiwiSDR.fr | Products" />
-    <meta property="og:description" content="KiwiSDR.fr - The WorldWide radio related tools website." />
+    <meta property="og:title" content="KiwiSDR.fr | Nos Produits" />
+    <meta property="og:description" content="KiwiSDR.fr - Découvrez nos produits et plugins radio spécialisés pour votre équipement SDR." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="http://kiwisdr.fr" />
+    <meta property="og:url" content="http://kiwisdr.fr/radio/products/" />
     <meta property="og:image" content="http://kiwisdr.fr/assets/img/og-image.png" />
 
     <!-- Favicon & Styles -->
     <link rel="icon" type="image/x-icon" href="http://kiwisdr.fr/assets/img/favicon.ico" />
     <link rel="stylesheet" href="../../assets/css/main.css" />
+    
+    <!-- i18n System -->
+    <script src="../../assets/js/i18n.js"></script>
+    
+    <style>
+        .language-selector {
+            display: flex;
+            gap: 0.5em;
+            justify-content: center;
+            margin-top: 1em;
+        }
+        
+        .lang-btn {
+            background: linear-gradient(135deg, rgba(0, 200, 255, 0.15) 0%, rgba(100, 50, 200, 0.1) 100%);
+            border: 2px solid rgba(0, 255, 200, 0.2);
+            color: #00ffcc;
+            padding: 0.5em 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .lang-btn:hover {
+            border-color: rgba(0, 255, 200, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 200, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.sel {
+            background: linear-gradient(135deg, #00ffcc 0%, #00ddff 100%);
+            border-color: #00ffcc;
+            color: #0a0e27;
+            box-shadow: 0 8px 25px rgba(0, 255, 204, 0.4);
+            font-weight: 700;
+        }
+    </style>
 </head>
 
 <body>
@@ -27,43 +67,105 @@
 
         <div class="header-text">
             <h1>KiwiSDR.fr</h1>
-            <p>The WorldWide radio related tools website.</p>
+            <p id="products-subtitle">Produits & Extensions Radio Professionnels</p>
+            
+            <!-- Language Selector -->
+            <div class="language-selector">
+                <button class="lang-btn sel" onclick="setLanguage('fr')">🇫🇷 FR</button>
+                <button class="lang-btn" onclick="setLanguage('en')">🇬🇧 EN</button>
+            </div>
         </div>
     </header>
 
+    <!-- Navigation -->
+    <nav>
+        <a href="http://kiwisdr.fr/" id="nav-home">Accueil</a>
+        <a href="#produits" id="nav-products">Produits</a>
+        <a href="#contact" id="nav-contact">Contact</a>
+    </nav>
+
     <!-- Main Content -->
     <main class="main-content">
-        <section>
-            <h2>Our Products</h2>
-
-            <ul class="product-list">
-                <li>
-                    <h3>SDR Console Colormap (Waterfall Colors)</h3>
-                    <a href="./sdrconsole/ColorMap_V1.0.xml" class="button">Download Version 1.0</a>
-                    <p>
-                        Content includes: <strong>colormap KiwiSDR</strong>,
-                        <strong>colormap Vitrado</strong>, and
-                        <strong>colormap Persuvo</strong>.
-                    </p>
-                </li>
-            </ul>
-        </section>
-
-        <!-- Decorative Radio Dial -->
-        <div class="radio-dial"></div>
-
-        <!-- Animated Waves -->
+        <!-- Decorative Waves -->
         <div class="radio-waves">
             <span></span><span></span><span></span><span></span><span></span>
         </div>
+
+        <section id="produits">
+            <h2 id="products-title">📦 Nos Produits Disponibles</h2>
+
+            <ul class="section-list">
+                <li>
+                    <h3 style="color: #00ffcc; margin-top: 0;" id="products-colormap">🎨 Palettes de Couleurs SDR Console</h3>
+                    <p id="products-colormap-desc">
+                        Collection professionnelle de colormaps pour le spectrogramme en cascade 
+                        (waterfall) de SDR Console. Ces palettes offrent des contrastes optimals 
+                        et une lisibilité exceptionnelle pour vos sessions de réception.
+                    </p>
+                    <p style="font-size: 0.95em; color: #a8d8ff; margin-top: 1em;">
+                        <strong id="products-included">Palettes incluses :</strong> KiwiSDR, Vitrado, Persuvo
+                    </p>
+                    <a href="./sdrconsole/ColorMap_V1.0.xml" class="button" id="products-download">⬇️ Télécharger v1.0</a>
+                </li>
+            </ul>
+
+            <div class="radio-dial"></div>
+
+            <!-- Additional Info -->
+            <div style="margin-top: 2em; padding: 1.5em; background: rgba(0, 200, 255, 0.08); border-left: 4px solid #00ffcc; border-radius: 8px;">
+                <h3 style="margin-top: 0; color: #00ffcc;" id="products-coming">📋 Prochainement</h3>
+                <p id="products-coming-desc">
+                    D'autres produits et plugins radio innovants arriveront très bientôt. 
+                    Restez connecté pour les dernières mises à jour!
+                </p>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
     <footer>
         <p>
-            Made by <strong>Discode Studio</strong> with ❤️ <br />
-            This website is <em>unrelated to KiwiSDR.com</em>
+            <span id="footer-text">Créé par</span> <strong id="footer-studio">Discode Studio</strong> <span id="footer-heart">avec ❤️ pour la communauté radio mondiale</span><br />
+            <em id="footer-note">🔗 Site indépendant - Aucun lien avec KiwiSDR.com</em>
         </p>
     </footer>
+    
+    <!-- Translation Script -->
+    <script>
+        function updateTranslations() {
+            // Navigation
+            document.getElementById('nav-home').textContent = t('nav_home');
+            document.getElementById('nav-products').textContent = t('products_title');
+            document.getElementById('nav-contact').textContent = t('nav_contact');
+            
+            // Main content
+            document.getElementById('products-title').textContent = t('products_title');
+            document.getElementById('products-colormap').textContent = t('products_colormap');
+            document.getElementById('products-colormap-desc').textContent = t('products_colormap_desc');
+            document.getElementById('products-included').textContent = t('products_included');
+            document.getElementById('products-download').textContent = t('products_download');
+            document.getElementById('products-coming').textContent = t('products_coming');
+            document.getElementById('products-coming-desc').textContent = t('products_coming_desc');
+            
+            // Footer
+            document.getElementById('footer-text').textContent = t('footer_text');
+            document.getElementById('footer-studio').textContent = t('footer_studio');
+            document.getElementById('footer-heart').textContent = t('footer_heart');
+            document.getElementById('footer-note').textContent = t('footer_note');
+            
+            // Update language button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('sel');
+            });
+            if (getCurrentLanguage() === 'fr') {
+                document.querySelectorAll('.lang-btn')[0].classList.add('sel');
+            } else {
+                document.querySelectorAll('.lang-btn')[1].classList.add('sel');
+            }
+        }
+        
+        // Update on page load
+        document.addEventListener('DOMContentLoaded', updateTranslations);
+    </script>
 </body>
 </html>

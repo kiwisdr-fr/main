@@ -1,22 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>KiwiSDR.fr</title>
+    <title>KiwiSDR.fr - Planificateur de Stations</title>
 
     <!-- Open Graph Metadata -->
-    <meta property="og:title" content="KiwiSDR.fr | Main Page" />
-    <meta property="og:description" content="KiwiSDR.fr - The WorldWide radio related tools website." />
+    <meta property="og:title" content="KiwiSDR.fr | Planificateur de Stations" />
+    <meta property="og:description" content="KiwiSDR.fr - Planificateur des émissions radios mondiales programmées." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="http://kiwisdr.fr" />
+    <meta property="og:url" content="http://kiwisdr.fr/radio/schedule/" />
     <meta property="og:image" content="http://kiwisdr.fr/assets/img/og-image.png" />
 
     <!-- Favicon & Styles -->
     <link rel="icon" type="image/x-icon" href="http://kiwisdr.fr/assets/img/favicon.ico" />
     <link rel="stylesheet" href="http://kiwisdr.fr/assets/css/main.css" />
     <link rel="stylesheet" href="./main.css">
+    
+    <!-- i18n System -->
+    <script src="../../assets/js/i18n.js"></script>
+    
+    <style>
+        .language-selector {
+            display: flex;
+            gap: 0.5em;
+            justify-content: center;
+            margin-top: 1em;
+        }
+        
+        .lang-btn {
+            background: linear-gradient(135deg, rgba(0, 200, 255, 0.15) 0%, rgba(100, 50, 200, 0.1) 100%);
+            border: 2px solid rgba(0, 255, 200, 0.2);
+            color: #00ffcc;
+            padding: 0.5em 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .lang-btn:hover {
+            border-color: rgba(0, 255, 200, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 200, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.sel {
+            background: linear-gradient(135deg, #00ffcc 0%, #00ddff 100%);
+            border-color: #00ffcc;
+            color: #0a0e27;
+            box-shadow: 0 8px 25px rgba(0, 255, 204, 0.4);
+            font-weight: 700;
+        }
+    </style>
 </head>
 
 <body>
@@ -32,14 +72,43 @@
 
         <div class="header-text">
             <h1>KiwiSDR.fr</h1>
-            <p>The WorldWide radio related tools website.</p>
+            <p id="schedule-subtitle">📅 Planificateur de Stations Radio Mondial</p>
+            
+            <!-- Language Selector -->
+            <div class="language-selector">
+                <button class="lang-btn sel" onclick="setLanguage('fr')">🇫🇷 FR</button>
+                <button class="lang-btn" onclick="setLanguage('en')">🇬🇧 EN</button>
+            </div>
         </div>
     </header>
 
+    <!-- Navigation -->
+    <nav>
+        <a href="http://kiwisdr.fr/" id="nav-home">Accueil</a>
+        <a href="#schedule" id="nav-schedule">Horaires</a>
+        <a href="#info" id="nav-info">Infos</a>
+    </nav>
+
     <!-- Main Content -->
     <main class="main-content">
-        <section>
+        <!-- Radio Waves Animation -->
+        <div class="radio-waves">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <section id="schedule">
+            <h2 id="schedule-title">📡 Calendrier des Émissions</h2>
             <div class="schedule"></div>
+        </section>
+
+        <!-- Info Section -->
+        <section id="info" style="margin-top: 2em;">
+            <h3 id="schedule-about">ℹ️ À Propos du Planificateur</h3>
+            <p id="schedule-about-desc">
+                Ce planificateur affiche les émissions radio programmées de stations expérimentales 
+                et officielles du monde entier. Consultez les horaires UTC et planifiez vos sessions 
+                de réception!
+            </p>
         </section>
     </main>
 
@@ -47,13 +116,13 @@
 async function loadSchedule() {
     const scheduleContainer = document.querySelector('.schedule');
     const dayNames = {
-        mon: "Monday",
-        tue: "Tuesday",
-        wed: "Wednesday",
-        thu: "Thursday",
-        fri: "Friday",
-        sat: "Saturday",
-        sun: "Sunday"
+        mon: "Lundi",
+        tue: "Mardi",
+        wed: "Mercredi",
+        thu: "Jeudi",
+        fri: "Vendredi",
+        sat: "Samedi",
+        sun: "Dimanche"
     };
 
     try {
@@ -67,19 +136,10 @@ async function loadSchedule() {
         const clock = document.createElement('div');
         clock.className = 'utc-clock';
         clock.innerHTML = `
-            <h3>UTC TIME</h3>
+            <h3>⏱️ Heure UTC Actuelle</h3>
             <div id="utc-time">--:--:--</div>
         `;
         wrapper.appendChild(clock);
-
-        // Section Next Schedules
-        const nextSection = document.createElement('div');
-        nextSection.className = 'next-schedule';
-        nextSection.innerHTML = `
-            <h4>NEXT STATIONS</h4>
-            <ul id="next-list"><li>Loading...</li></ul>
-        `;
-        wrapper.appendChild(nextSection);
 
         // Conteneur principal
         const tableContainer = document.createElement('div');
@@ -128,7 +188,10 @@ async function loadSchedule() {
             // Titre du jour
             const dayHeader = document.createElement('h3');
             dayHeader.className = 'day-header';
-            dayHeader.textContent = dayNames[dayKey];
+            dayHeader.textContent = '📅 ' + dayNames[dayKey];
+            dayHeader.style.marginTop = '1.5em';
+            dayHeader.style.marginBottom = '1em';
+            dayHeader.style.color = '#00ffcc';
             tableContainer.appendChild(dayHeader);
 
             // Tableau
@@ -137,11 +200,11 @@ async function loadSchedule() {
             table.innerHTML = `
                 <thead>
                     <tr>
-                        <th>TIME</th>
-                        <th>STN.</th>
-                        <th>FREQ.</th>
+                        <th>HEURE</th>
+                        <th>STATION</th>
+                        <th>FRÉQUENCE</th>
                         <th>MODE</th>
-                        <th>REMARKS</th>
+                        <th>REMARQUES</th>
                     </tr>
                 </thead>
             `;
@@ -150,7 +213,7 @@ async function loadSchedule() {
             allEntries.forEach(entry => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${entry.hour.slice(0, 2)}:${entry.hour.slice(2).padEnd(2, '0')}</td>
+                    <td style="font-weight: 700; color: #00ffcc;">${entry.hour.slice(0, 2)}:${entry.hour.slice(2).padEnd(2, '0')}</td>
                     <td class="stn">${entry.name}</td>
                     <td>${entry.freq}</td>
                     <td>${entry.mode}</td>
@@ -176,60 +239,8 @@ async function loadSchedule() {
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- Section "Next Schedules" ---
-        function updateNextSchedules() {
-            const now = new Date();
-            const utcHours = now.getUTCHours();
-            const utcMinutes = now.getUTCMinutes();
-            const nowMinutes = utcHours * 60 + utcMinutes;
-
-            const nextList = document.getElementById('next-list');
-            nextList.innerHTML = '';
-
-            let upcoming = [];
-
-            data.forEach(entry => {
-                const times = entry.hour.split(',');
-                let next = null;
-                for (let t of times) {
-                    const h = parseInt(t.slice(0, 2));
-                    const m = parseInt(t.slice(2) || '0');
-                    const total = h * 60 + m;
-                    if (total > nowMinutes) {
-                        next = total;
-                        break;
-                    }
-                }
-                if (next !== null) {
-                    const nextH = String(Math.floor(next / 60)).padStart(2, '0');
-                    const nextM = String(next % 60).padStart(2, '0');
-                    upcoming.push({
-                        name: entry.name,
-                        time: `${nextH}:${nextM}`,
-                        freq: entry.freq || '?',
-                        mode: entry.mode || '?'
-                    });
-                }
-            });
-
-            upcoming.sort((a, b) => a.time.localeCompare(b.time));
-
-            if (upcoming.length === 0) {
-                nextList.innerHTML = '<li>No upcoming transmissions.</li>';
-            } else {
-                upcoming.slice(0, 5).forEach(item => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${item.name}</strong> ${item.time} UTC (${item.freq} ${item.mode})`;
-                    nextList.appendChild(li);
-                });
-            }
-        }
-
-        updateNextSchedules();
-        setInterval(updateNextSchedules, 60000);
-
     } catch (err) {
-        scheduleContainer.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
+        scheduleContainer.innerHTML = `<p style="color: #ff3366; text-align: center; padding: 2em;">Erreur de chargement: ${err.message}</p>`;
     }
 }
 
@@ -239,9 +250,46 @@ document.addEventListener('DOMContentLoaded', loadSchedule);
     <!-- Footer -->
     <footer>
         <p>
-            Made by <strong>Discode Studio</strong> with ❤️<br />
-            This website is <em>unrelated to KiwiSDR.com</em>
+            <span id="footer-text">Créé par</span> <strong id="footer-studio">Discode Studio</strong> <span id="footer-heart">avec ❤️ pour la communauté radio mondiale</span><br />
+            <em id="footer-note">🔗 Site indépendant - Aucun lien avec KiwiSDR.com</em>
         </p>
     </footer>
+    
+    <!-- Translation Script -->
+    <script>
+        function updateTranslations() {
+            // Navigation
+            document.getElementById('nav-home').textContent = t('nav_home');
+            document.getElementById('nav-schedule').textContent = t('nav_schedule') || 'Horaires';
+            document.getElementById('nav-info').textContent = t('nav_info') || 'Infos';
+            
+            // Main content
+            document.getElementById('schedule-title').textContent = t('schedule_title');
+            document.getElementById('schedule-about').textContent = t('schedule_about');
+            document.getElementById('schedule-about-desc').textContent = t('schedule_about_desc');
+            
+            // Footer
+            document.getElementById('footer-text').textContent = t('footer_text');
+            document.getElementById('footer-studio').textContent = t('footer_studio');
+            document.getElementById('footer-heart').textContent = t('footer_heart');
+            document.getElementById('footer-note').textContent = t('footer_note');
+            
+            // Update language button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('sel');
+            });
+            if (getCurrentLanguage() === 'fr') {
+                document.querySelectorAll('.lang-btn')[0].classList.add('sel');
+            } else {
+                document.querySelectorAll('.lang-btn')[1].classList.add('sel');
+            }
+        }
+        
+        // Update on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTranslations();
+            loadSchedule();
+        });
+    </script>
 </body>
 </html>

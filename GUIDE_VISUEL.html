@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Guide Visuel - KiwiSDR.fr Design 3D</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a0a2e 25%, #16213e 50%, #0f3460 75%, #0a0e27 100%);
+            background-attachment: fixed;
+            color: #e0f7ff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 2em;
+            line-height: 1.8;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(20, 30, 60, 0.7);
+            border: 2px solid rgba(0, 255, 200, 0.2);
+            border-radius: 20px;
+            padding: 2.5em;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 150, 255, 0.15);
+        }
+        h1 { color: #00ffcc; text-shadow: 0 0 15px rgba(0, 255, 204, 0.3); }
+        h2 { color: #00ddff; text-shadow: 0 0 10px rgba(0, 221, 255, 0.2); }
+        h3 { color: #00ffcc; }
+        .feature {
+            background: rgba(0, 200, 255, 0.1);
+            border-left: 4px solid #00ffcc;
+            padding: 1.5em;
+            margin: 1.5em 0;
+            border-radius: 10px;
+        }
+        .feature strong { color: #00ffcc; }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #00ddff;
+        }
+        ul { color: #a8d8ff; }
+        li { margin: 0.5em 0; }
+        .emoji { font-size: 1.3em; }
+        a {
+            color: #00ffcc;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        a:hover {
+            color: #ff33dd;
+            text-shadow: 0 0 10px rgba(255, 51, 221, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="emoji">🎨</span> Guide Complet du Nouveau Design KiwiSDR.fr</h1>
+        
+        <h2>Vue d'Ensemble</h2>
+        <p>
+            Le site KiwiSDR.fr a été complètement transformé avec un design ultra-moderne 
+            intégrant des effets 3D avancés, des animations fluides et un glassmorphisme premium. 
+            Chaque élément a été optimisé pour offrir une expérience utilisateur exceptionnelle.
+        </p>
+
+        <h2><span class="emoji">✨</span> Principales Améliorations</h2>
+
+        <div class="feature">
+            <strong>1. Glassmorphisme Avancé</strong><br>
+            Tous les panneaux utilisent un effet de verre avec flou arrière-plan (<code>backdrop-filter: blur()</code>), 
+            créant une profondeur visuelle immédiate et un look ultra-moderne.
+        </div>
+
+        <div class="feature">
+            <strong>2. Dégradés Animés</strong><br>
+            Le fond du site utilise un dégradé quadruple (bleu → violet → bleu → vert) qui change lentement, 
+            créant une ambiance dynamique et captivante.
+        </div>
+
+        <div class="feature">
+            <strong>3. Animations Fluides</strong><br>
+            10+ keyframes CSS complexes animent les éléments:
+            <ul>
+                <li>🌊 <strong>Ondes Radio</strong>: Barres verticales qui montent/descendent (1.8s)</li>
+                <li>📻 <strong>Cadran Radio</strong>: Aiguille pulsante (2s)</li>
+                <li>✨ <strong>Shimmer Header</strong>: Lumière balayante (8s)</li>
+                <li>🪄 <strong>Logo</strong>: Légère rotation et flottement (4s)</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <strong>4. Effets Lumière 3D</strong><br>
+            Utilisation avancée de <code>box-shadow</code> multicouches:
+            <ul>
+                <li>Ombres douces pour profondeur</li>
+                <li>Halos lumineux au survol</li>
+                <li>Inset shadows pour relief</li>
+                <li>Text-shadow pour les titres</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <strong>5. Design Responsive Intelligent</strong><br>
+            <ul>
+                <li>📱 Mobile (max 480px): Layout simple et lisible</li>
+                <li>📱 Tablette (max 768px): Grille 2 colonnes</li>
+                <li>🖥️ Desktop (1000px+): Grille complète 3-4 colonnes</li>
+            </ul>
+        </div>
+
+        <h2><span class="emoji">🎨</span> Palette de Couleurs</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 2px solid rgba(0, 255, 200, 0.2);">
+                <td style="padding: 1em; color: #00ffcc;"><strong>Cyan Primaire</strong></td>
+                <td style="padding: 1em; color: #a8d8ff;"><code>#00ffcc</code> - Éléments principaux</td>
+            </tr>
+            <tr style="border-bottom: 2px solid rgba(0, 255, 200, 0.2);">
+                <td style="padding: 1em; color: #00ddff;"><strong>Cyan Secondaire</strong></td>
+                <td style="padding: 1em; color: #a8d8ff;"><code>#00ddff</code> - Textes secondaires</td>
+            </tr>
+            <tr style="border-bottom: 2px solid rgba(0, 255, 200, 0.2);">
+                <td style="padding: 1em; color: #ff33dd;"><strong>Magenta Accent</strong></td>
+                <td style="padding: 1em; color: #a8d8ff;"><code>#ff33dd</code> - Interactions, hover</td>
+            </tr>
+            <tr>
+                <td style="padding: 1em;"><strong>Texte Principal</strong></td>
+                <td style="padding: 1em; color: #a8d8ff;"><code>#e0f7ff</code> - Très haute lisibilité</td>
+            </tr>
+        </table>
+
+        <h2><span class="emoji">🎬</span> Animations Clés</h2>
+        <div style="background: rgba(0, 0, 0, 0.2); padding: 1.5em; border-radius: 10px; margin: 1.5em 0;">
+            <strong>⚡ Performance CSS</strong><br>
+            Toutes les animations utilisent des propriétés GPU-accelerated:
+            <ul>
+                <li>✅ Transform (translateX, translateY, scale, rotate)</li>
+                <li>✅ Opacity</li>
+                <li>✅ Avoid: width, height, left, right (trop lourd)</li>
+            </ul>
+        </div>
+
+        <h2><span class="emoji">📱</span> Composants Clés</h2>
+
+        <h3>🔘 Boutons</h3>
+        <p>
+            Dégradé cyan → bleu → violet avec bordure brillante. 
+            Au survol: changement vers magenta + élévation (transform).
+        </p>
+
+        <h3>📦 Cartes Produits/Récepteurs</h3>
+        <p>
+            Grille responsive avec effet d'ombre au survol. 
+            Chaque carte a un shine effect qui glisse de gauche à droite.
+        </p>
+
+        <h3>🎙️ Cadran Radio</h3>
+        <p>
+            Aiguille rose avec glow effect, pulsante. 
+            Arrière-plan avec dégradé et animation de brillance.
+        </p>
+
+        <h3>📡 Ondes Radio</h3>
+        <p>
+            5 barres cyan verticales avec décalage d'animation. 
+            Hauteur variable pour effet de "vague".
+        </p>
+
+        <h2><span class="emoji">🚀</span> Expérience Utilisateur</h2>
+        <ul>
+            <li>✨ Transitions naturelles et non agressives</li>
+            <li>💫 Feedback immédiat au survol/clic</li>
+            <li>🎯 Hiérarchie visuelle crystal clear</li>
+            <li>♿ Accessibilité WCAG AA+</li>
+            <li>⚡ Chargement rapide (CSS only, pas JS lourd)</li>
+            <li>🌍 Support multi-navigateur moderne</li>
+        </ul>
+
+        <h2><span class="emoji">📝</span> Pages Refactorisées</h2>
+        <ul>
+            <li>✅ <strong>index.html</strong> - Accueil complète avec 5 sections</li>
+            <li>✅ <strong>radio/products/index.html</strong> - Produits avec cartes stylisées</li>
+            <li>✅ <strong>radio/schedule/index.html</strong> - Planificateur avec horloge UTC</li>
+            <li>✅ <strong>radio/sdrlist/index.html</strong> - Grille récepteurs responsive</li>
+        </ul>
+
+        <h2><span class="emoji">🎓</span> Technologies CSS Avancées</h2>
+        <ul>
+            <li>🔹 CSS Grid avec <code>auto-fill</code> et <code>minmax()</code></li>
+            <li>🔹 Backdrop Filter pour glassmorphisme</li>
+            <li>🔹 CSS Custom Properties (variables)</li>
+            <li>🔹 Transform 2D avancé</li>
+            <li>🔹 Cubic-bezier easing (courbes fluides)</li>
+            <li>🔹 Radial et linear gradients composites</li>
+        </ul>
+
+        <div style="margin-top: 3em; padding: 1.5em; background: rgba(100, 50, 200, 0.15); border: 2px solid rgba(100, 50, 200, 0.3); border-radius: 10px; text-align: center;">
+            <h3 style="margin-top: 0; color: #00ffcc;">✨ Profitez du Nouveau KiwiSDR.fr!</h3>
+            <p>Un design moderne, élégant et techniquement impressionnant pour votre communauté radio mondiale.</p>
+            <p><strong>Créé par Discode Studio avec ❤️</strong></p>
+        </div>
+    </div>
+</body>
+</html>
